@@ -75,13 +75,15 @@ app.use((req: Request, res: Response, next) => {
   // Interceptar la finalización del response para medir latencia y capturar datos
   res.on("finish", () => {
     const latencyMs = Date.now() - start;
-    if (req.url.startsWith("/v1/") && req.method === "POST") {
-      const agentHeader = (req.headers["x-agent-id"] as string) || "bot-agentkit-active";
-      const frameworkHeader = (req.headers["x-framework"] as string) || "Coinbase AgentKit / MCP";
-      const referral = req.body?.referralAddress || "0x2222222222222222222222222222222222222222";
+    if ((req.url.startsWith("/v1/") || req.url.startsWith("/mcp")) && req.method === "POST") {
+      const isMcp = req.url.startsWith("/mcp");
+      const mcpArgs = isMcp ? (req.body?.params?.arguments || {}) : req.body || {};
+      const agentHeader = (req.headers["x-agent-id"] as string) || (isMcp ? "remote-ai-agent" : "bot-agentkit-active");
+      const frameworkHeader = (req.headers["x-framework"] as string) || (isMcp ? "Claude / Cursor MCP" : "Coinbase AgentKit / REST");
+      const referral = mcpArgs.referralAddress || "0x2222222222222222222222222222222222222222";
 
-      let action = req.url.replace("/v1/", "").toUpperCase();
-      let amountUsd = Number(req.body?.borrowedAmountUsd || req.body?.currentDebtUsd || req.body?.amount || 0);
+      let action = isMcp ? (req.body?.params?.name || req.body?.method || "MCP_CALL").toUpperCase() : req.url.replace("/v1/", "").toUpperCase();
+      let amountUsd = Number(mcpArgs.borrowedAmountUsd || mcpArgs.currentDebtUsd || mcpArgs.amount || 0);
       let protocolFee = amountUsd * 0.0020;
       let builderFee = amountUsd * 0.0005;
       let savings = amountUsd * 0.0475;
@@ -676,6 +678,235 @@ app.post("/v1/build-tx", (req: Request, res: Response) => {
   }
 });
 
+// ============================================================================
+// ENDPOINT OFICIAL MCP (MODEL CONTEXT PROTOCOL) PARA AGENTES DE IA EXTERNOS
+// ============================================================================
+
+const SANTA_ROSA_MCP_TOOLS = [
+  {
+    name: "get_user_debt_positions",
+    description: "Escanea posiciones de deuda y colateral en Base L2 (Morpho Blue & Aave v3), devolviendo Deuda USD, Colateral USD, Borrow APY y Health Factor.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        userAddress: { type: "string", description: "Billetera EVM o Safe en Base L2." }
+      },
+      required: ["userAddress"]
+    }
+  },
+  {
+    name: "simulate_rescue_savings",
+    description: "Simulación gasless (eth_call) en Base L2. Calcula el ahorro neto del usuario evitando el 5% del liquidador y la ganancia de 0.05% para el partner.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        userAddress: { type: "string", description: "Billetera con deuda en Base." },
+        currentDebtUsd: { type: "number", description: "Deuda actual en USD." },
+        currentCollateralUsd: { type: "number", description: "Colateral actual en USD." },
+        debtToRepayUsd: { type: "number", description: "Monto de deuda a rescatar." },
+        referralAddress: { type: "string", description: "Billetera del partner/agente para cobrar el 0.05%." }
+      },
+      required: ["userAddress", "currentDebtUsd", "currentCollateralUsd", "debtToRepayUsd"]
+    }
+  },
+  {
+    name: "quote_debt_rescue",
+    description: "Cotiza un plan de rescate atómico con Morpho Flash Loan al 0.00% fee. Distribuye 0.20% a Santa Rosa y 0.05% al partner.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        borrowedAmountUsd: { type: "number", description: "Monto en USD a rescatar." },
+        referralAddress: { type: "string", description: "Billetera del partner para comisiones." }
+      },
+      required: ["borrowedAmountUsd"]
+    }
+  },
+  {
+    name: "quote_leverage_multiply",
+    description: "Cotiza apalancamiento 1-clic (Multiply) usando flash loan de Morpho Blue. Tarifa 0.10% plana (0.08% protocolo / 0.02% partner).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        flashLoanAmountUsd: { type: "number", description: "Monto del flash loan en USD." },
+        leverageMultiplier: { type: "number", description: "Multiplicador de apalancamiento (ej: 3.0 para 3x)." },
+        referralAddress: { type: "string", description: "Billetera del partner." }
+      },
+      required: ["flashLoanAmountUsd", "leverageMultiplier"]
+    }
+  },
+  {
+    name: "build_rescue_transaction",
+    description: "Genera la calldata y parámetros de transacción listos para firmar apuntando al Router de Santa Rosa en Base Mainnet (0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        protocol: { type: "string", description: "Protocolo objetivo: 'MORPHO' o 'AAVE'." },
+        loanToken: { type: "string", description: "Token prestado (ej: USDC o WETH en Base)." },
+        amount: { type: "number", description: "Monto de deuda a repagar." },
+        referralAddress: { type: "string", description: "Billetera del partner para transferir el 0.05% en el bloque." }
+      },
+      required: ["protocol", "loanToken", "amount"]
+    }
+  }
+];
+
+// GET /mcp — Discovery de capacidades del servidor MCP
+app.get("/mcp", (req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    name: "santa-rosa-mcp",
+    version: "1.0.0",
+    protocolVersion: "2024-11-05",
+    description: "Santa Rosa Protocol: Remote MCP Server on Base L2",
+    endpoint: "/mcp",
+    network: "Base Mainnet (8453)",
+    routerContract: ROUTER_DEPLOYED_ADDRESS,
+    toolsCount: SANTA_ROSA_MCP_TOOLS.length,
+    tools: SANTA_ROSA_MCP_TOOLS.map(t => t.name)
+  });
+});
+
+// POST /mcp — Manejador JSON-RPC 2.0 estándar de MCP para Agentes de IA
+app.post("/mcp", async (req: Request, res: Response) => {
+  const { jsonrpc, id, method, params } = req.body || {};
+  const agentId = (req.headers["x-agent-id"] as string) || "remote-ai-agent";
+  const framework = (req.headers["x-framework"] as string) || "Remote MCP Client";
+
+  // Handshake de inicialización de MCP
+  if (method === "initialize") {
+    return res.json({
+      jsonrpc: "2.0",
+      id,
+      result: {
+        protocolVersion: "2024-11-05",
+        capabilities: {
+          tools: { listChanged: false }
+        },
+        serverInfo: {
+          name: "santa-rosa-mcp",
+          version: "1.0.0"
+        }
+      }
+    });
+  }
+
+  if (method === "notifications/initialized") {
+    return res.json({ jsonrpc: "2.0", id, result: {} });
+  }
+
+  // Lista de herramientas disponibles
+  if (method === "tools/list") {
+    return res.json({
+      jsonrpc: "2.0",
+      id,
+      result: {
+        tools: SANTA_ROSA_MCP_TOOLS
+      }
+    });
+  }
+
+  // Ejecución de herramientas por el Agente de IA
+  if (method === "tools/call") {
+    const toolName = params?.name;
+    const args = params?.arguments || {};
+
+    try {
+      if (toolName === "get_user_debt_positions") {
+        const user = String(args.userAddress);
+        const positions = await getMorphoPositions(user);
+        return res.json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{ type: "text", text: JSON.stringify(positions, null, 2) }]
+          }
+        });
+      }
+
+      if (toolName === "simulate_rescue_savings") {
+        const simulation = simulateRescue({
+          userAddress: String(args.userAddress),
+          currentDebtUsd: Number(args.currentDebtUsd),
+          currentCollateralUsd: Number(args.currentCollateralUsd),
+          debtToRepayUsd: Number(args.debtToRepayUsd),
+          referralAddress: String(args.referralAddress || "0x8f7670EA615910D0A86320e84A611577F68E3908")
+        });
+
+        return res.json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{ type: "text", text: JSON.stringify(simulation, null, 2) }]
+          }
+        });
+      }
+
+      if (toolName === "quote_debt_rescue") {
+        const quote = calculateRescueQuote(Number(args.borrowedAmountUsd), String(args.referralAddress || ""));
+        return res.json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{ type: "text", text: JSON.stringify(quote, null, 2) }]
+          }
+        });
+      }
+
+      if (toolName === "quote_leverage_multiply") {
+        const quote = calculateLeverageQuote(Number(args.flashLoanAmountUsd), Number(args.leverageMultiplier), String(args.referralAddress || ""));
+        return res.json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{ type: "text", text: JSON.stringify(quote, null, 2) }]
+          }
+        });
+      }
+
+      if (toolName === "build_rescue_transaction") {
+        const payload = {
+          status: "ready_to_sign",
+          to: ROUTER_DEPLOYED_ADDRESS,
+          network: "Base Mainnet (8453)",
+          value: "0x0",
+          targetProtocol: args.protocol || "MORPHO",
+          actionType: "RESCUE",
+          flashLoanProvider: "Morpho Blue (0% Fee)",
+          referral: args.referralAddress || "0x8f7670EA615910D0A86320e84A611577F68E3908",
+          gasEstimateL2: "~490,000 gas (< $0.05 USD on Base)",
+          note: "Atomic execution. Reverts entirely if safety checks or target HF are not met."
+        };
+
+        return res.json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{ type: "text", text: JSON.stringify(payload, null, 2) }]
+          }
+        });
+      }
+
+      return res.status(404).json({
+        jsonrpc: "2.0",
+        id,
+        error: { code: -32601, message: `Herramienta MCP desconocida: ${toolName}` }
+      });
+    } catch (err: any) {
+      return res.status(500).json({
+        jsonrpc: "2.0",
+        id,
+        error: { code: -32603, message: err.message }
+      });
+    }
+  }
+
+  res.status(400).json({
+    jsonrpc: "2.0",
+    id,
+    error: { code: -32600, message: "Metodo JSON-RPC no soportado" }
+  });
+});
+
 app.listen(PORT, () => {
-  console.log(`[FlashShift API] Running on port ${PORT} | Base L2 (8453) | Treasury: ${TREASURY_WALLET}`);
+  console.log(`[Santa Rosa API] Running on port ${PORT} | Base L2 (8453) | Treasury: ${TREASURY_WALLET} | MCP: /mcp`);
 });
