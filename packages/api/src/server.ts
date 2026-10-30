@@ -67,6 +67,14 @@ const connectedAgents: Map<string, AgentProfile> = new Map();
 app.use(cors());
 app.use(express.json());
 
+// Manejador seguro de errores de parseo JSON para evitar SyntaxError en consola
+app.use((err: any, req: Request, res: Response, next: any) => {
+  if (err instanceof SyntaxError && "status" in err && (err as any).status === 400) {
+    return res.status(400).json({ error: "Invalid JSON format" });
+  }
+  next(err);
+});
+
 // Middleware de Auditoría y Stream en Tiempo Real
 app.use((req: Request, res: Response, next) => {
   const start = Date.now();
@@ -1039,6 +1047,6 @@ app.post("/mcp", async (req: Request, res: Response) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`[Santa Rosa API] Running on port ${PORT} | Base L2 (8453) | Treasury: ${TREASURY_WALLET} | MCP: /mcp`);
 });
