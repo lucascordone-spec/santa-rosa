@@ -26,3 +26,6 @@ scratch/
 # Sistema Operativo
 .DS_Store
 Thumbs.db
+cloudflared.exe
+*.exe
+
