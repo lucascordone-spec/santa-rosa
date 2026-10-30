@@ -10,9 +10,9 @@ Connect remote AI agents, bots, and applications directly over HTTPS:
 
 | Service | Public Endpoint / Puente | Protocol | Description |
 | :--- | :--- | :---: | :--- |
-| **Puente MCP Gateway** | `https://rates-counter-breed-frontier.trycloudflare.com/mcp` | JSON-RPC 2.0 | Native Model Context Protocol tools for AI agents. |
-| **Puente Dashboard Console** | [https://rates-counter-breed-frontier.trycloudflare.com/](https://rates-counter-breed-frontier.trycloudflare.com/) | Web / HTTPS | Real-time transaction stream and on-chain metrics. |
-| **Puente Health API** | [https://rates-counter-breed-frontier.trycloudflare.com/health](https://rates-counter-breed-frontier.trycloudflare.com/health) | REST | Live Base L2 network and contract status. |
+| **Puente MCP Gateway** | `https://console-versus-prerequisite-attendance.trycloudflare.com/mcp` | JSON-RPC 2.0 | Native Model Context Protocol tools for AI agents. |
+| **Puente Dashboard Console** | [https://console-versus-prerequisite-attendance.trycloudflare.com/](https://console-versus-prerequisite-attendance.trycloudflare.com/) | Web / HTTPS | Real-time transaction stream and on-chain metrics. |
+| **Puente Health API** | [https://console-versus-prerequisite-attendance.trycloudflare.com/health](https://console-versus-prerequisite-attendance.trycloudflare.com/health) | REST | Live Base L2 network and contract status. |
 
 ---
 
@@ -35,7 +35,7 @@ Santa Rosa exposes a fully managed remote MCP gateway. External agents (Claude D
 {
   "mcpServers": {
     "santa-rosa": {
-      "url": "https://rates-counter-breed-frontier.trycloudflare.com/mcp"
+      "url": "https://console-versus-prerequisite-attendance.trycloudflare.com/mcp"
     }
   }
 }
@@ -56,7 +56,7 @@ Any referring wallet, agent, or bot earns **0.05% (5 bps)** of rescued volume in
 
 ### REST API Integration Example:
 ```bash
-curl -X POST https://rates-counter-breed-frontier.trycloudflare.com/v1/simulate/rescue \
+curl -X POST https://console-versus-prerequisite-attendance.trycloudflare.com/v1/simulate/rescue \
   -H "Content-Type: application/json" \
   -d '{
     "userAddress": "0x10c53e75fE7A7E6bF58a9e68B6a30Fcc7D4e6e2c",

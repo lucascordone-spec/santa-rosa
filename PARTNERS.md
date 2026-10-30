@@ -31,7 +31,7 @@ Agregá el endpoint público con túnel SSL a tu cliente MCP (Cursor, Windsurf, 
 {
   "mcpServers": {
     "santa-rosa": {
-      "url": "https://rates-counter-breed-frontier.trycloudflare.com/mcp"
+      "url": "https://console-versus-prerequisite-attendance.trycloudflare.com/mcp"
     }
   }
 }
@@ -66,7 +66,7 @@ Cuando tu bot detecta una alerta de riesgo (`Health Factor < 1.05`), consulta a 
 #### 1. Simular Ahorro (Gasless `eth_call`)
 ```bash
 # Podés consultar al endpoint público o a tu instancia local:
-curl -X POST https://rates-counter-breed-frontier.trycloudflare.com/v1/simulate/rescue \
+curl -X POST https://console-versus-prerequisite-attendance.trycloudflare.com/v1/simulate/rescue \
   -H "Content-Type: application/json" \
   -d '{
     "userAddress": "0x10c53e75fE7A7E6bF58a9e68B6a30Fcc7D4e6e2c",
@@ -109,7 +109,7 @@ Al hacer clic, el bot solicita la transacción en `/v1/build-tx`, el usuario fir
 * **Morpho Blue Flash Loan (0% Fee):** `0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb`
 * **USDC Token:** `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
 * **Gas promedio por rescate:** `< $0.05 USD`
-* **Dirección del Puente MCP / API:** `https://rates-counter-breed-frontier.trycloudflare.com`
+* **Dirección del Puente MCP / API:** `https://console-versus-prerequisite-attendance.trycloudflare.com`
 * **Dirección del Puente Base L2 (Cross-chain Bridge):** `0x4200000000000000000000000000000000000010`
 * **Dirección del Puente Base L1 (Ethereum Portal Bridge):** `0x49048044D57e1C92A77f79988d21Fa8fAF74E97e`
 
