@@ -1,0 +1,9 @@
+{
+  "name": "santa-rosa",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Santa Rosa Protocol: Non-custodial B2B DeFi Infrastructure & MCP Server on Base L2",
+  "workspaces": [
+    "packages/*"
+  ]
+}

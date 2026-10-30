@@ -1,0 +1,21 @@
+{
+  "name": "@santa-rosa/api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@santa-rosa/core": "*",
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "typescript": "^5.6.0"
+  }
+}
