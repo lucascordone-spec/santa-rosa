@@ -24,8 +24,20 @@ Con **Santa Rosa**:
 
 ### Vía 1: Integración con Agentes de IA (MCP Protocol)
 
-Agregá Santa Rosa a la configuración de tu agente (Claude Desktop, Cursor, o servidor MCP):
+#### A. Conexión Remota Inmediata (Sin instalar código):
+Agregá el endpoint público con túnel SSL a tu cliente MCP (Cursor, Windsurf, Claude Desktop, o frameworks de agentes):
 
+```json
+{
+  "mcpServers": {
+    "santa-rosa": {
+      "url": "https://rates-counter-breed-frontier.trycloudflare.com/mcp"
+    }
+  }
+}
+```
+
+#### B. Conexión Local Stdio:
 ```json
 {
   "mcpServers": {
@@ -53,7 +65,8 @@ Cuando tu bot detecta una alerta de riesgo (`Health Factor < 1.05`), consulta a 
 
 #### 1. Simular Ahorro (Gasless `eth_call`)
 ```bash
-curl -X POST http://localhost:3000/v1/simulate/rescue \
+# Podés consultar al endpoint público o a tu instancia local:
+curl -X POST https://rates-counter-breed-frontier.trycloudflare.com/v1/simulate/rescue \
   -H "Content-Type: application/json" \
   -d '{
     "userAddress": "0x10c53e75fE7A7E6bF58a9e68B6a30Fcc7D4e6e2c",

@@ -28,11 +28,36 @@ Santa Rosa is a machine-to-machine (M2M) decentralized execution router designed
 
 ---
 
+## 🌐 Public Live Endpoints (Cloudflare SSL Bridge)
+
+Remote AI agents, bots, and external integrators can connect directly to Santa Rosa over the public internet without local installations:
+
+| Service | Public URL | Description |
+| :--- | :--- | :--- |
+| **Remote MCP Endpoint** | `https://rates-counter-breed-frontier.trycloudflare.com/mcp` | Remote JSON-RPC 2.0 MCP server for AI agents. |
+| **Live Ops & Telemetry Dashboard** | [Dashboard](https://rates-counter-breed-frontier.trycloudflare.com) | Real-time monitoring, live fleet stats & on-chain balances. |
+| **Health API** | [Health](https://rates-counter-breed-frontier.trycloudflare.com/health) | Node status, Base L2 connectivity & contracts. |
+
+
+---
+
 ## 🤖 MCP Server for AI Agents (`@santa-rosa/mcp-server`)
 
 Connect autonomous AI agents (Claude Desktop, Cursor, ElizaOS, Coinbase AgentKit) via the Model Context Protocol (MCP).
 
-### MCP Configuration (`claude_desktop_config.json`):
+### Option A: Remote Public MCP (Zero Installation Required)
+Connect any agent directly over HTTPS via our Cloudflare bridge:
+```json
+{
+  "mcpServers": {
+    "santa-rosa": {
+      "url": "https://rates-counter-breed-frontier.trycloudflare.com/mcp"
+    }
+  }
+}
+```
+
+### Option B: Local Stdio MCP (`claude_desktop_config.json`)
 ```json
 {
   "mcpServers": {
