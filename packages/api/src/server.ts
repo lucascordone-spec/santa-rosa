@@ -544,16 +544,35 @@ app.get("/", (req: Request, res: Response) => {
         // 3. Actualizar Terminal de Tráfico
         const term = document.getElementById('terminalLog');
         if (data.stream && data.stream.length > 0) {
-          term.innerHTML = data.stream.map(item => \`
-            <div class="log-line">
-              <span class="log-time">[\${item.timestamp.substring(11, 19)}]</span>
-              <span class="log-agent">\${item.agentId}</span> 
-              <span class="log-action">\${item.action}</span> 
-              <span>Monto: <strong class="log-amount">$\${Math.round(item.amountUsd).toLocaleString()} USD</strong></span> | 
-              <span>Fee: <strong class="log-fee">+$\${item.protocolFeeUsd.toFixed(2)} USDC</strong></span>
-              <span style="color: #64748b; font-size: 0.75rem;">(\${item.latencyMs}ms)</span>
-            </div>
-          \`).join('');
+          term.innerHTML = data.stream.map(item => {
+            const isHandshake = ['INITIALIZE', 'TOOLS/LIST', 'NOTIFICATIONS/INITIALIZED', 'RESOURCES/LIST', 'PROMPTS/LIST', 'PING'].includes(item.action);
+            const statusColor = item.status === 'SUCCESS' ? '#10b981' : '#ef4444';
+            const statusBadge = \`<span style="color: \${statusColor}; font-weight: bold; font-size: 0.75rem;">[\${item.status}]</span>\`;
+
+            if (isHandshake) {
+              return \`
+                <div class="log-line">
+                  <span class="log-time">[\${item.timestamp.substring(11, 19)}]</span>
+                  \${statusBadge}
+                  <span class="log-agent">\${item.agentId}</span>
+                  <span style="color: #60a5fa; font-weight: 600;">MCP DISCOVERY: \${item.action}</span>
+                  <span style="color: #64748b; font-size: 0.75rem;">(\${item.latencyMs}ms)</span>
+                </div>
+              \`;
+            }
+
+            return \`
+              <div class="log-line">
+                <span class="log-time">[\${item.timestamp.substring(11, 19)}]</span>
+                \${statusBadge}
+                <span class="log-agent">\${item.agentId}</span> 
+                <span class="log-action">\${item.action}</span> 
+                <span>Monto: <strong class="log-amount">$\${Math.round(item.amountUsd).toLocaleString()} USD</strong></span> | 
+                <span>Fee: <strong class="log-fee">+$\${item.protocolFeeUsd.toFixed(2)} USDC</strong></span>
+                <span style="color: #64748b; font-size: 0.75rem;">(\${item.latencyMs}ms)</span>
+              </div>
+            \`;
+          }).join('');
         }
       } catch (err) {
         console.error('Error fetching telemetry:', err);
@@ -886,6 +905,35 @@ app.post("/mcp", async (req: Request, res: Response) => {
       result: {
         tools: SANTA_ROSA_MCP_TOOLS
       }
+    });
+  }
+
+  // Compatibilidad completa con clientes MCP (Cursor, Claude Desktop, Windsurf)
+  if (method === "resources/list") {
+    return res.json({
+      jsonrpc: "2.0",
+      id,
+      result: {
+        resources: []
+      }
+    });
+  }
+
+  if (method === "prompts/list") {
+    return res.json({
+      jsonrpc: "2.0",
+      id,
+      result: {
+        prompts: []
+      }
+    });
+  }
+
+  if (method === "ping") {
+    return res.json({
+      jsonrpc: "2.0",
+      id,
+      result: {}
     });
   }
 
