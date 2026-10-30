@@ -109,3 +109,7 @@ Al hacer clic, el bot solicita la transacción en `/v1/build-tx`, el usuario fir
 * **Morpho Blue Flash Loan (0% Fee):** `0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb`
 * **USDC Token:** `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
 * **Gas promedio por rescate:** `< $0.05 USD`
+* **Dirección del Puente MCP / API:** `https://rates-counter-breed-frontier.trycloudflare.com`
+* **Dirección del Puente Base L2 (Cross-chain Bridge):** `0x4200000000000000000000000000000000000010`
+* **Dirección del Puente Base L1 (Ethereum Portal Bridge):** `0x49048044D57e1C92A77f79988d21Fa8fAF74E97e`
+

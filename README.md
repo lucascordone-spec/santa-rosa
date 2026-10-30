@@ -4,15 +4,25 @@
 
 ---
 
-## 🌐 Live Public Endpoints
+## 🌐 Live Public Endpoints & Official Bridge (Puente)
 
 Connect remote AI agents, bots, and applications directly over HTTPS:
 
-| Service | Public Endpoint | Protocol | Description |
+| Service | Public Endpoint / Puente | Protocol | Description |
 | :--- | :--- | :---: | :--- |
-| **Remote MCP Gateway** | `https://rates-counter-breed-frontier.trycloudflare.com/mcp` | JSON-RPC 2.0 | Native Model Context Protocol tools for AI agents. |
-| **Live Telemetry Dashboard** | [Dashboard Console](https://rates-counter-breed-frontier.trycloudflare.com/) | Web / HTTPS | Real-time transaction stream and on-chain metrics. |
-| **Health API** | [Health Status](https://rates-counter-breed-frontier.trycloudflare.com/health) | REST | Live Base L2 network and contract status. |
+| **Puente MCP Gateway** | `https://rates-counter-breed-frontier.trycloudflare.com/mcp` | JSON-RPC 2.0 | Native Model Context Protocol tools for AI agents. |
+| **Puente Dashboard Console** | [https://rates-counter-breed-frontier.trycloudflare.com/](https://rates-counter-breed-frontier.trycloudflare.com/) | Web / HTTPS | Real-time transaction stream and on-chain metrics. |
+| **Puente Health API** | [https://rates-counter-breed-frontier.trycloudflare.com/health](https://rates-counter-breed-frontier.trycloudflare.com/health) | REST | Live Base L2 network and contract status. |
+
+---
+
+## 🌉 Base L2 On-Chain Bridge Addresses (Puente Oficial)
+
+For bridging cross-chain collateral and settlement into Base:
+
+* **Base L2 Standard Bridge (L2):** [`0x4200000000000000000000000000000000000010`](https://basescan.org/address/0x4200000000000000000000000000000000000010)
+* **Base Portal Bridge (Ethereum L1):** [`0x49048044D57e1C92A77f79988d21Fa8fAF74E97e`](https://etherscan.io/address/0x49048044D57e1C92A77f79988d21Fa8fAF74E97e)
+
 
 ---
 
