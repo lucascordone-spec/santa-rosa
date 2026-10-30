@@ -2,6 +2,11 @@
 
 > **Headless Non-Custodial DeFi Infrastructure for Autonomous Debt Rescue, 1-Click Leverage, and Multi-Route Arbitrage on Base L2 (ChainId: 8453).**
 
+[![Smithery Badge](https://smithery.ai/badge/@lucascordone-spec/santa-rosa)](https://smithery.ai/server/@lucascordone-spec/santa-rosa)
+[![Glama MCP Server](https://glama.ai/mcp/servers/lucascordone-spec/santa-rosa/badges/score.svg)](https://glama.ai/mcp/servers/lucascordone-spec/santa-rosa)
+[![Base L2 Mainnet](https://img.shields.io/badge/Base%20L2-8453-0052FF?logo=coinbase)](https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57)
+[![Morpho Flash Loan](https://img.shields.io/badge/Morpho%20Blue-0%25%20Fee%20Flash%20Loans-2468f2)](https://morpho.org)
+
 ---
 
 ## 📌 Protocol Overview
@@ -71,6 +76,15 @@ Connect any agent directly over HTTPS via our Cloudflare bridge:
   }
 }
 ```
+
+### Option C: One-Click Installation via Smithery.ai
+To automatically install and configure for Claude Desktop or Cursor via [Smithery](https://smithery.ai/server/@lucascordone-spec/santa-rosa):
+```bash
+npx -y @smithery/cli install @lucascordone-spec/santa-rosa --client claude
+```
+
+### Option D: Glama.ai Registry Discovery
+Listed on [Glama.ai MCP Registry](https://glama.ai/mcp/servers/lucascordone-spec/santa-rosa) for autonomous tool calling and LLM integration.
 
 ### Native Tools Exposed:
 1. `get_user_debt_positions`: Scans borrowing positions in Morpho Blue & Aave v3 on Base L2.

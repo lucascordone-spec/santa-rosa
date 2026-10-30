@@ -205,8 +205,54 @@ app.get("/", (req: Request, res: Response) => {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Santa Rosa Protocol — Ops & Telemetry Console</title>
+  <title>Santa Rosa Protocol — Headless Autonomous DeFi Debt Rescue & Leverage Router on Base L2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Headless, non-custodial DeFi infrastructure on Base L2 (ChainId: 8453). 0.00% fee flash loans via Morpho Blue, atomic anti-liquidation debt rescue saving ~95% vs MEV penalties, and 80/20 on-chain builder revenue sharing.">
+  <meta name="keywords" content="Base L2, Morpho Blue, DeFi, Debt Rescue, Liquidation Protection, Flash Loans, AI Agents, MCP Server, Crypto Arbitrage">
+  <meta name="author" content="Santa Rosa Protocol">
+  <link rel="canonical" href="https://rates-counter-breed-frontier.trycloudflare.com/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rates-counter-breed-frontier.trycloudflare.com/">
+  <meta property="og:title" content="Santa Rosa Protocol — Headless DeFi Debt Rescue & Leverage on Base L2">
+  <meta property="og:description" content="Atomic anti-liquidation debt rescue with 0% fee Morpho flash loans on Base L2. Native MCP endpoint for AI agents and 80/20 builder revenue share.">
+  <meta property="og:site_name" content="Santa Rosa Protocol">
+  <meta property="og:image" content="https://rates-counter-breed-frontier.trycloudflare.com/og-image.png">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://rates-counter-breed-frontier.trycloudflare.com/">
+  <meta name="twitter:title" content="Santa Rosa Protocol — Headless DeFi Debt Rescue on Base L2">
+  <meta name="twitter:description" content="Save 95% on DeFi liquidation penalties on Base L2 with 0.00% flash loan execution. Native MCP server for autonomous agents.">
+  <meta name="twitter:creator" content="@SantaRosaDeFi">
+
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Santa Rosa Protocol",
+    "applicationCategory": "DeFiApplication",
+    "operatingSystem": "Base L2 (EVM ChainId 8453)",
+    "description": "Headless non-custodial DeFi execution router for autonomous debt rescue, 1-click leverage, and M2M operations on Base L2.",
+    "url": "https://rates-counter-breed-frontier.trycloudflare.com/",
+    "softwareVersion": "1.0.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "0.25% atomic execution fee (0.20% protocol, 0.05% partner referral revenue share)"
+    },
+    "featureList": [
+      "Atomic Anti-Liquidation Debt Rescue",
+      "0.00% Morpho Blue Flash Loan Fee",
+      "Model Context Protocol (MCP) Server for AI Agents",
+      "On-Chain Builder Revenue Share (5 bps to partner)",
+      "Base L2 Mainnet Router 0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57"
+    ]
+  }
+  </script>
   <style>
     :root {
       --bg: #07090e;
@@ -547,6 +593,44 @@ app.get("/", (req: Request, res: Response) => {
 </body>
 </html>
   `);
+});
+
+// Endpoints de Indexación y Crawlers (SEO / Google / Bing / Smithery)
+app.get("/robots.txt", (req: Request, res: Response) => {
+  res.type("text/plain");
+  res.send(`User-agent: *
+Allow: /
+Allow: /mcp
+Allow: /health
+Disallow: /v1/telemetry
+
+Sitemap: https://rates-counter-breed-frontier.trycloudflare.com/sitemap.xml
+`);
+});
+
+app.get("/sitemap.xml", (req: Request, res: Response) => {
+  res.type("application/xml");
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://rates-counter-breed-frontier.trycloudflare.com/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://rates-counter-breed-frontier.trycloudflare.com/mcp</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://rates-counter-breed-frontier.trycloudflare.com/health</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`);
 });
 
 // Endpoints oficiales de negocio
