@@ -1,57 +1,26 @@
-# ⚡ Santa Rosa Protocol
+# ⚡ Santa Rosa Protocol — Headless DeFi API & MCP Gateway
 
-> **Headless Non-Custodial DeFi Infrastructure for Autonomous Debt Rescue, 1-Click Leverage, and Multi-Route Arbitrage on Base L2 (ChainId: 8453).**
-
-[![Smithery Badge](https://smithery.ai/badge/@lucascordone-spec/santa-rosa)](https://smithery.ai/server/@lucascordone-spec/santa-rosa)
-[![Glama MCP Server](https://glama.ai/mcp/servers/lucascordone-spec/santa-rosa/badges/score.svg)](https://glama.ai/mcp/servers/lucascordone-spec/santa-rosa)
-[![Base L2 Mainnet](https://img.shields.io/badge/Base%20L2-8453-0052FF?logo=coinbase)](https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57)
-[![Morpho Flash Loan](https://img.shields.io/badge/Morpho%20Blue-0%25%20Fee%20Flash%20Loans-2468f2)](https://morpho.org)
+> **Autonomous Machine-to-Machine (M2M) Execution Gateway for AI Agents, Web3 Wallets, and Telegram Bots on Base L2 (ChainId: 8453).**
 
 ---
 
-## 📌 Protocol Overview
+## 🌐 Live Public Endpoints
 
-Santa Rosa is a machine-to-machine (M2M) decentralized execution router designed specifically for **AI Agents, Web3 Wallets, and Automated Bots** operating on Base L2.
+Connect remote AI agents, bots, and applications directly over HTTPS:
 
-* **0.00% Flash Loan Fee:** Powered exclusively by Morpho Blue flash loans (`$162.1M+` USDC liquidity available at zero borrow cost).
-* **Anti-Liquidation Debt Rescue:** Repays at-risk debt, releases locked collateral, and swaps the minimum required fraction in a single atomic transaction block—saving borrowers ~95% vs. external liquidator penalties (0.25% flat fee vs. 5.00% MEV penalty).
-* **On-Chain Builder Revenue Share (80/20):** 
-  * **80%** to Santa Rosa Protocol Treasury (`0.20%`).
-  * **20%** to the referring Partner / Bot Wallet (`0.05%`), transferred **atomically in the same block** via `safeTransfer`.
-
----
-
-## 📍 Deployed Contracts (Base Mainnet)
-
-| Contract | Address | Explorer Link |
-| :--- | :--- | :--- |
-| **Santa Rosa Router** | `0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57` | [BaseScan](https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57) |
-| **Protocol Treasury** | `0x8f7670EA615910D0A86320e84A611577F68E3908` | [BaseScan](https://basescan.org/address/0x8f7670EA615910D0A86320e84A611577F68E3908) |
-| **Morpho Blue (Flash Loan)** | `0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb` | [BaseScan](https://basescan.org/address/0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb) |
-| **Aave v3 Pool (Base)** | `0xA238Dd80C259a72e81d7e4664a9801593F98d1c5` | [BaseScan](https://basescan.org/address/0xA238Dd80C259a72e81d7e4664a9801593F98d1c5) |
-| **Kyber Meta-Router** | `0x6131B5fae19EA4f9D964eAc0408E4408b66337b5` | [BaseScan](https://basescan.org/address/0x6131B5fae19EA4f9D964eAc0408E4408b66337b5) |
+| Service | Public Endpoint | Protocol | Description |
+| :--- | :--- | :---: | :--- |
+| **Remote MCP Gateway** | `https://rates-counter-breed-frontier.trycloudflare.com/mcp` | JSON-RPC 2.0 | Native Model Context Protocol tools for AI agents. |
+| **Live Telemetry Dashboard** | [Dashboard Console](https://rates-counter-breed-frontier.trycloudflare.com/) | Web / HTTPS | Real-time transaction stream and on-chain metrics. |
+| **Health API** | [Health Status](https://rates-counter-breed-frontier.trycloudflare.com/health) | REST | Live Base L2 network and contract status. |
 
 ---
 
-## 🌐 Public Live Endpoints (Cloudflare SSL Bridge)
+## 🤖 1-Click AI Agent Integration (MCP)
 
-Remote AI agents, bots, and external integrators can connect directly to Santa Rosa over the public internet without local installations:
+Santa Rosa exposes a fully managed remote MCP gateway. External agents (Claude Desktop, Cursor, Windsurf, ElizaOS, Coinbase AgentKit) connect in seconds without running local servers.
 
-| Service | Public URL | Description |
-| :--- | :--- | :--- |
-| **Remote MCP Endpoint** | `https://rates-counter-breed-frontier.trycloudflare.com/mcp` | Remote JSON-RPC 2.0 MCP server for AI agents. |
-| **Live Ops & Telemetry Dashboard** | [Dashboard](https://rates-counter-breed-frontier.trycloudflare.com) | Real-time monitoring, live fleet stats & on-chain balances. |
-| **Health API** | [Health](https://rates-counter-breed-frontier.trycloudflare.com/health) | Node status, Base L2 connectivity & contracts. |
-
-
----
-
-## 🤖 MCP Server for AI Agents (`@santa-rosa/mcp-server`)
-
-Connect autonomous AI agents (Claude Desktop, Cursor, ElizaOS, Coinbase AgentKit) via the Model Context Protocol (MCP).
-
-### Option A: Remote Public MCP (Zero Installation Required)
-Connect any agent directly over HTTPS via our Cloudflare bridge:
+### Configuration (`claude_desktop_config.json` or Cursor Settings):
 ```json
 {
   "mcpServers": {
@@ -62,101 +31,57 @@ Connect any agent directly over HTTPS via our Cloudflare bridge:
 }
 ```
 
-### Option B: Local Stdio MCP (`claude_desktop_config.json`)
+### Available Tools:
+1. `get_user_debt_positions`: Scans active borrow/collateral positions in Morpho Blue & Aave v3 on Base L2.
+2. `simulate_rescue_savings`: Simulates net borrower savings vs. 5.00% MEV liquidation penalties and computes partner revenue.
+3. `quote_debt_rescue`: Generates quote with 0.25% fee (80% Protocol / 20% Partner).
+4. `quote_leverage_multiply`: Generates 1-click leverage plan (3x–5x).
+5. `build_rescue_transaction`: Returns ready-to-sign `{ to, data, value }` targeting the Santa Rosa Base Router (`0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57`).
+
+---
+
+## 🤝 Partner Revenue Share System (5 bps Instant USDC)
+
+Any referring wallet, agent, or bot earns **0.05% (5 bps)** of rescued volume in USDC. The fee is distributed **atomically on-chain in the same transaction block** via smart contract.
+
+### REST API Integration Example:
+```bash
+curl -X POST https://rates-counter-breed-frontier.trycloudflare.com/v1/simulate/rescue \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userAddress": "0x10c53e75fE7A7E6bF58a9e68B6a30Fcc7D4e6e2c",
+    "currentDebtUsd": 41227.81,
+    "currentCollateralUsd": 42536.10,
+    "debtToRepayUsd": 41227.81,
+    "referralAddress": "0xYourPayoutWalletAddress"
+  }'
+```
+
+### Response:
 ```json
 {
-  "mcpServers": {
-    "santa-rosa": {
-      "command": "node",
-      "args": ["/path/to/santa-rosa/packages/mcp-server/dist/index.js"],
-      "env": {
-        "SANTA_ROSA_PARTNER_WALLET": "0xYourPartnerPayoutWalletHere"
-      }
+  "summary": "Guaranteed net savings for borrower: $1,958.32 USD avoiding forced liquidation.",
+  "simulation": {
+    "financialComparison": {
+      "liquidationPenaltyIfLiquidatedUsd": 2061.39,
+      "santaRosaFeeUsd": 103.07,
+      "builderFeeUsd": 20.61,
+      "protocolFeeUsd": 82.46,
+      "netMoneySavedUsd": 1958.32
     }
   }
 }
 ```
 
-### Option C: One-Click Installation via Smithery.ai
-To automatically install and configure for Claude Desktop or Cursor via [Smithery](https://smithery.ai/server/@lucascordone-spec/santa-rosa):
-```bash
-npx -y @smithery/cli install @lucascordone-spec/santa-rosa --client claude
-```
+---
 
-### Option D: Glama.ai Registry Discovery
-Listed on [Glama.ai MCP Registry](https://glama.ai/mcp/servers/lucascordone-spec/santa-rosa) for autonomous tool calling and LLM integration.
+## 📍 Deployed Contracts (Base Mainnet — ChainId: 8453)
 
-### Native Tools Exposed:
-1. `get_user_debt_positions`: Scans borrowing positions in Morpho Blue & Aave v3 on Base L2.
-2. `simulate_rescue_savings`: Simulates net savings vs. 5% liquidation penalty and computes partner revenue.
-3. `quote_debt_rescue`: Generates quote with 80/20 fee distribution.
-4. `quote_leverage_multiply`: Generates 1-click leverage plan (3x-5x).
-5. `build_rescue_transaction`: Returns ready-to-broadcast `{ to, data, value }` targeting `0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57`.
+* **Santa Rosa Router:** [`0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57`](https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57)
+* **Protocol Treasury:** [`0x8f7670EA615910D0A86320e84A611577F68E3908`](https://basescan.org/address/0x8f7670EA615910D0A86320e84A611577F68E3908)
+* **Flash Loan Liquidity:** Morpho Blue (0.00% fee — $160M+ USDC liquidity)
 
 ---
 
-## 🤝 Partner Revenue Share System (Builder Incentive)
-
-Any bot, agent, or wallet can earn **0.05% (5 bps)** of volume in USDC simply by injecting its wallet address in the `referral` field:
-
-```typescript
-// Example: Earn 5 bps on every rescue without writing smart contracts
-const response = await fetch("http://localhost:3000/v1/build-tx", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    actionType: "RESCUE",
-    protocol: "MORPHO",
-    loanToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
-    amount: 100000, // $100k debt rescued
-    referralAddress: "0xYourPartnerWalletAddress" // <--- Receives $50 USDC instantly
-  })
-});
-```
-
----
-
-## 📦 Monorepo Architecture
-
-```
-santa-rosa/
-├── contracts/                  # Solidity 0.8.20 (Cancun) Foundry test suite
-│   ├── src/FlashShiftRouter.sol # Deployed Router Contract
-│   └── test/                   # Fork tests on live Base L2 state ($5M whales tested)
-├── packages/
-│   ├── core/                   # @santa-rosa/core (Viem math, Morpho GraphQL client)
-│   ├── mcp-server/             # @santa-rosa/mcp-server (Model Context Protocol)
-│   └── api/                    # @santa-rosa/api (Express REST API & Ops Dashboard)
-├── PARTNERS.md                 # Integration manual for partners and bots
-└── README.md
-```
-
----
-
-## 🚀 Quickstart
-
-### 1. Install & Build
-```bash
-npm install
-npm run build --workspaces
-```
-
-### 2. Start Ops Console & REST API
-```bash
-cd packages/api
-npm start
-# Open http://localhost:3000 in your browser to view the real-time Ops Console
-```
-
-### 3. Run Foundry On-Chain Tests
-```bash
-cd contracts
-forge test --fork-url https://mainnet.base.org
-```
-
----
-
-## 🛡️ Security & Audits
-* **Atomic Execution:** Morpho Blue flash loans enforce strict balance settlement in the same execution block. If slippage or target Health Factor is not satisfied, the EVM reverts 100% of the transaction.
-* **Unauthorized Callback Guard:** Strict validation on `onMorphoFlashLoan` ensuring only the official Morpho Blue address can trigger callbacks.
-* **Non-Reentrant:** OpenZeppelin-standard reentrancy protection.
+## 📄 License & Terms
+All rights reserved. The Santa Rosa routing algorithms and execution engines are hosted and proprietary. Integrations are provided via the public API and MCP gateway.
