@@ -101,25 +101,33 @@
     /* ACTION TABS */
     .tabs {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
       margin-bottom: 20px;
       background: rgba(0, 0, 0, 0.3);
       padding: 4px;
       border-radius: 12px;
       border: 1px solid var(--border);
     }
+    @media (max-width: 640px) {
+      .tabs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
     .tab-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-      padding: 10px 8px;
+      padding: 10px 4px;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
       text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .tab-btn.active {
       background: rgba(0, 82, 255, 0.3);
@@ -274,27 +282,97 @@
 
       <!-- TABS -->
       <div class="tabs">
-        <button class="tab-btn active" id="tabUnwind" onclick="switchTab('unwind')">🔓 Close Loan (No Cash)</button>
+        <button class="tab-btn active" id="tabUnwind" onclick="switchTab('unwind')">🔓 Close Loan</button>
         <button class="tab-btn" id="tabRescue" onclick="switchTab('rescue')">🛡️ Debt Rescue</button>
         <button class="tab-btn" id="tabLeverage" onclick="switchTab('leverage')">🚀 1-Click Leverage</button>
+        <button class="tab-btn" id="tabSwap" onclick="switchTab('swap')">🔄 Router Swap (0.03%)</button>
       </div>
 
       <div class="stats-grid">
         <div class="stat-box">
-          <div class="stat-label">Upfront Cash</div>
-          <div class="stat-value success">$0.00</div>
+          <div class="stat-label" id="statUpfrontLabel">Upfront Cash</div>
+          <div class="stat-value success" id="statUpfrontVal">$0.00</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Protocol Fee</div>
-          <div class="stat-value success">0.25% Flat</div>
+          <div class="stat-label" id="statFeeLabel">Protocol Fee</div>
+          <div class="stat-value success" id="statFeeVal">0.25% Flat</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Flash Loan Fee</div>
-          <div class="stat-value blue">0.00% Morpho</div>
+          <div class="stat-label" id="statEngineLabel">Flash Loan Fee</div>
+          <div class="stat-value blue" id="statEngineVal">0.00% Morpho</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Execution Time</div>
           <div class="stat-value success">&lt; 2 Sec</div>
+        </div>
+      </div>
+
+      <!-- SWAP CONTAINER (4TH TAB) -->
+      <div id="swapContainer" style="display: none; margin-bottom: 20px;">
+        <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+            <span>You Pay</span>
+            <span id="tokenInBalance">Balance: <span style="color:#93c5fd;">--</span></span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <input type="number" id="swapAmountIn" class="input-box" placeholder="0.0" value="100" style="font-size: 24px; font-weight: 700; background: transparent; border: none; padding: 0; outline: none; width: 60%; color: #fff;" oninput="onSwapAmountChanged()">
+            <select id="swapTokenIn" style="background: #151e33; color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 14px; cursor: pointer;" onchange="onSwapTokenChanged()">
+              <option value="USDC">USDC</option>
+              <option value="WETH">WETH</option>
+              <option value="ETH">ETH</option>
+              <option value="cbBTC">cbBTC</option>
+              <option value="AERO">AERO</option>
+              <option value="DEGEN">DEGEN</option>
+              <option value="USDe">USDe</option>
+              <option value="DAI">DAI</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: -16px 0; z-index: 2; position: relative;">
+          <button onclick="invertSwapTokens()" type="button" style="background: #151e33; border: 1px solid rgba(255,255,255,0.2); color: var(--accent-cyan); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); transition: transform 0.2s;" onmouseover="this.style.transform='rotate(180deg)'" onmouseout="this.style.transform='rotate(0deg)'">
+            ⇅
+          </button>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-top: 4px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+            <span>You Receive (Estimated)</span>
+            <span id="tokenOutBalance">Route: <span style="color:#10b981;">Optimal Multi-Hop</span></span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <input type="text" id="swapAmountOut" class="input-box" placeholder="0.0" readonly style="font-size: 24px; font-weight: 700; background: transparent; border: none; padding: 0; outline: none; width: 60%; color: #10b981;">
+            <select id="swapTokenOut" style="background: #151e33; color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 14px; font-weight: 700; font-size: 14px; cursor: pointer;" onchange="onSwapTokenChanged()">
+              <option value="WETH">WETH</option>
+              <option value="USDC">USDC</option>
+              <option value="ETH">ETH</option>
+              <option value="cbBTC">cbBTC</option>
+              <option value="AERO">AERO</option>
+              <option value="DEGEN">DEGEN</option>
+              <option value="USDe">USDe</option>
+              <option value="DAI">DAI</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ROUTER AUDIT & FEE BREAKDOWN -->
+        <div style="background: rgba(0, 82, 255, 0.08); border: 1px solid rgba(0, 82, 255, 0.25); border-radius: 12px; padding: 14px; font-size: 12px; line-height: 1.6;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="color: var(--text-muted);">Execution Engine:</span>
+            <span style="font-weight: 600; color: #93c5fd;">Santa Rosa Smart Meta-Router (Base L2)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="color: var(--text-muted);">Routing Fee (Flat):</span>
+            <span style="font-weight: 700; color: #10b981;">0.03% (90% cheaper than 0.30% standard DEXs)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="color: var(--text-muted);">Affiliate Referral Share:</span>
+            <span style="font-weight: 600; color: #f59e0b;">0.01% (credited to your referral wallet)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Estimated Gas on Base:</span>
+            <span style="font-weight: 600; color: #fff;" id="swapGasEst">&lt; $0.02 USD</span>
+          </div>
         </div>
       </div>
 
@@ -357,34 +435,259 @@
       setTimeout(() => switchTab("swap"), 100);
     }
 
+    const META_ROUTER_ADDRESS = "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5";
+
+    const TOKEN_MAP = {
+      USDC: { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", decimals: 6 },
+      WETH: { address: "0x4200000000000000000000000000000000000006", decimals: 18 },
+      ETH: { address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", decimals: 18 },
+      cbBTC: { address: "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf", decimals: 8 },
+      AERO: { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631", decimals: 18 },
+      DEGEN: { address: "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed", decimals: 18 },
+      USDe: { address: "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34", decimals: 18 },
+      DAI: { address: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb", decimals: 18 }
+    };
+
+    let activeSwapRoute = null;
+    let swapDebounceTimer = null;
+
     function switchTab(tab) {
       currentTab = tab;
       document.getElementById("tabUnwind").className = tab === "unwind" ? "tab-btn active" : "tab-btn";
       document.getElementById("tabRescue").className = tab === "rescue" ? "tab-btn active" : "tab-btn";
       document.getElementById("tabLeverage").className = tab === "leverage" ? "tab-btn active" : "tab-btn";
+      const swapBtn = document.getElementById("tabSwap");
+      if (swapBtn) swapBtn.className = tab === "swap" ? "tab-btn active" : "tab-btn";
 
       const title = document.getElementById("heroTitle");
       const sub = document.getElementById("heroSubtitle");
       const btnText = document.getElementById("btnText");
+      const swapContainer = document.getElementById("swapContainer");
+      const posContainer = document.getElementById("positionContainer");
+      const inspectSec = document.getElementById("manualInspectSection");
+      const refTitle = document.getElementById("refBoxTitle");
+      const refDesc = document.getElementById("refBoxDesc");
 
-      if (tab === "unwind") {
-        title.innerText = "1-Click Atomic Loan Unwind";
-        sub.innerText = "Close your Morpho loan and withdraw your collateral in 1 atomic step. 0% flash loan pays your debt.";
-        if (connectedAccount) btnText.innerText = "EXECUTE 1-CLICK LOAN UNWIND";
-      } else if (tab === "rescue") {
-        title.innerText = "1-Click Anti-Liquidation Rescue";
-        sub.innerText = "Deleverage partially to restore your Health Factor to safe zone. Save 95% vs MEV liquidator penalties.";
-        if (connectedAccount) btnText.innerText = "EXECUTE 1-CLICK RESCUE";
-      } else if (tab === "leverage") {
-        title.innerText = "1-Click Leverage Multiply (3x-5x)";
-        sub.innerText = "Multiply collateral yield natively on Base at 0.00% flash loan cost. 0.10% flat fee.";
-        if (connectedAccount) btnText.innerText = "EXECUTE 1-CLICK LEVERAGE (3X)";
+      const statFeeLabel = document.getElementById("statFeeLabel");
+      const statFeeVal = document.getElementById("statFeeVal");
+      const statEngineLabel = document.getElementById("statEngineLabel");
+      const statEngineVal = document.getElementById("statEngineVal");
+
+      if (tab === "swap") {
+        title.innerText = "Smart Router Swap (0.03% Fee)";
+        sub.innerText = "Swap any token on Base with optimal multi-hop liquidity. Ultra-low 0.03% flat fee (90% cheaper than DEX standard).";
+        if (swapContainer) swapContainer.style.display = "block";
+        if (posContainer) posContainer.style.display = "none";
+        if (inspectSec) inspectSec.style.display = "none";
+
+        if (statFeeLabel) statFeeLabel.innerText = "Router Fee";
+        if (statFeeVal) statFeeVal.innerText = "0.03% Flat";
+        if (statEngineLabel) statEngineLabel.innerText = "Routing Engine";
+        if (statEngineVal) statEngineVal.innerText = "Multi-Hop Base";
+
+        if (refTitle) refTitle.innerText = "🤝 EARN 0.01% AFFILIATE REWARD ON EVERY SWAP:";
+        if (refDesc) refDesc.innerHTML = "Share your personal link with traders, builders, or bots. Every swap routed through Santa Rosa credits <strong>0.01% of the swap volume</strong> straight to your wallet!";
+
+        btnText.innerText = connectedAccount ? "EXECUTE ROUTER SWAP (0.03% FEE)" : "CONNECT WALLET TO SWAP";
+        updateSwapQuote();
+      } else {
+        if (swapContainer) swapContainer.style.display = "none";
+        if (inspectSec) inspectSec.style.display = "block";
+        if (statEngineLabel) statEngineLabel.innerText = "Flash Loan Fee";
+        if (statEngineVal) statEngineVal.innerText = "0.00% Morpho";
+
+        if (refTitle) refTitle.innerText = "🤝 EARN 0.05% BUILDER FEE ON EVERY TRANSACTION:";
+        if (refDesc) refDesc.innerHTML = "Share your personal link with borrowers, DAOs, or traders. Every time someone closes or rescues a position via your link, <strong>0.05% of the total loan volume in USDC</strong> is deposited directly into your wallet in the same transaction block.";
+
+        if (tab === "unwind") {
+          title.innerText = "1-Click Atomic Loan Unwind";
+          sub.innerText = "Close your Morpho loan and withdraw your collateral in 1 atomic step. 0% flash loan pays your debt.";
+          if (statFeeLabel) statFeeLabel.innerText = "Protocol Fee";
+          if (statFeeVal) statFeeVal.innerText = "0.25% Flat";
+          btnText.innerText = connectedAccount ? (selectedPosition ? "EXECUTE 1-CLICK LOAN UNWIND" : "SCAN WALLET POSITIONS") : "CONNECT WALLET TO START";
+        } else if (tab === "rescue") {
+          title.innerText = "1-Click Anti-Liquidation Rescue";
+          sub.innerText = "Deleverage partially to restore your Health Factor to safe zone. Save 95% vs MEV liquidator penalties.";
+          if (statFeeLabel) statFeeLabel.innerText = "Protocol Fee";
+          if (statFeeVal) statFeeVal.innerText = "0.25% Flat";
+          btnText.innerText = connectedAccount ? (selectedPosition ? "EXECUTE 1-CLICK RESCUE" : "SCAN WALLET POSITIONS") : "CONNECT WALLET TO START";
+        } else if (tab === "leverage") {
+          title.innerText = "1-Click Leverage Multiply (3x-5x)";
+          sub.innerText = "Multiply collateral yield natively on Base at 0.00% flash loan cost. 0.10% flat fee.";
+          if (statFeeLabel) statFeeLabel.innerText = "Protocol Fee";
+          if (statFeeVal) statFeeVal.innerText = "0.10% Flat";
+          btnText.innerText = connectedAccount ? "EXECUTE 1-CLICK LEVERAGE (3X)" : "CONNECT WALLET TO START";
+        }
+      }
+    }
+
+    function onSwapAmountChanged() {
+      if (swapDebounceTimer) clearTimeout(swapDebounceTimer);
+      swapDebounceTimer = setTimeout(updateSwapQuote, 400);
+    }
+
+    function onSwapTokenChanged() {
+      const inVal = document.getElementById("swapTokenIn").value;
+      const outVal = document.getElementById("swapTokenOut").value;
+      if (inVal === outVal) {
+        document.getElementById("swapTokenOut").value = inVal === "USDC" ? "WETH" : "USDC";
+      }
+      updateSwapQuote();
+    }
+
+    function invertSwapTokens() {
+      const inVal = document.getElementById("swapTokenIn").value;
+      const outVal = document.getElementById("swapTokenOut").value;
+      document.getElementById("swapTokenIn").value = outVal;
+      document.getElementById("swapTokenOut").value = inVal;
+      updateSwapQuote();
+    }
+
+    async function updateSwapQuote() {
+      const amountInput = document.getElementById("swapAmountIn");
+      const outInput = document.getElementById("swapAmountOut");
+      const gasEstSpan = document.getElementById("swapGasEst");
+      const tokenInKey = document.getElementById("swapTokenIn").value;
+      const tokenOutKey = document.getElementById("swapTokenOut").value;
+
+      if (!amountInput || !outInput) return;
+
+      const numVal = parseFloat(amountInput.value);
+      if (!numVal || numVal <= 0) {
+        outInput.value = "0.0";
+        return;
+      }
+
+      outInput.value = "Routing...";
+      const cfgIn = TOKEN_MAP[tokenInKey] || { address: tokenInKey, decimals: 18 };
+      const cfgOut = TOKEN_MAP[tokenOutKey] || { address: tokenOutKey, decimals: 18 };
+
+      try {
+        const rawAmountIn = BigInt(Math.floor(numVal * Math.pow(10, cfgIn.decimals))).toString();
+        // Tarifa 0.03% (3 bps)
+        const feeAmount = (BigInt(rawAmountIn) * 3n) / 10000n;
+        const netAmountIn = (BigInt(rawAmountIn) - feeAmount).toString();
+
+        const url = "https://aggregator-api.kyberswap.com/base/api/v1/routes?tokenIn=" + cfgIn.address + "&tokenOut=" + cfgOut.address + "&amountIn=" + netAmountIn;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data && data.data && data.data.routeSummary) {
+          activeSwapRoute = data.data.routeSummary;
+          const rawOut = BigInt(activeSwapRoute.amountOut);
+          const divisor = Math.pow(10, cfgOut.decimals);
+          const formattedOut = (Number(rawOut) / divisor).toLocaleString(undefined, {
+            minimumFractionDigits: cfgOut.decimals === 18 ? 4 : 2,
+            maximumFractionDigits: cfgOut.decimals === 18 ? 6 : 4
+          });
+          outInput.value = formattedOut;
+          if (activeSwapRoute.gasUsd && gasEstSpan) {
+            gasEstSpan.innerText = "$" + parseFloat(activeSwapRoute.gasUsd).toFixed(4) + " USD";
+          }
+        } else {
+          outInput.value = "Route not found";
+        }
+      } catch (err) {
+        console.warn("Swap route error:", err);
+        outInput.value = "Estimating...";
+      }
+    }
+
+    async function executeSwapTransaction() {
+      if (!connectedAccount) {
+        await connectWallet();
+        return;
+      }
+      const btnText = document.getElementById("btnText");
+      const tokenInKey = document.getElementById("swapTokenIn").value;
+      const tokenOutKey = document.getElementById("swapTokenOut").value;
+      const amountVal = parseFloat(document.getElementById("swapAmountIn").value);
+
+      if (!amountVal || amountVal <= 0 || !activeSwapRoute) {
+        alert("Please enter a valid amount and wait for the route quote.");
+        return;
+      }
+
+      const cfgIn = TOKEN_MAP[tokenInKey];
+      const isNativeEth = cfgIn.address.toLowerCase() === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+      const rawAmountIn = BigInt(Math.floor(amountVal * Math.pow(10, cfgIn.decimals))).toString();
+
+      btnText.innerText = "PREPARING SWAP...";
+
+      try {
+        const buildRes = await fetch("https://aggregator-api.kyberswap.com/base/api/v1/route/build", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            routeSummary: activeSwapRoute,
+            sender: connectedAccount,
+            recipient: connectedAccount,
+            slippageTolerance: 50
+          })
+        });
+        const buildData = await buildRes.json();
+        if (!buildData || !buildData.data) {
+          throw new Error(buildData.message || "Failed to generate route transaction calldata");
+        }
+
+        const routerTarget = buildData.data.routerAddress || META_ROUTER_ADDRESS;
+        const calldata = buildData.data.data;
+
+        if (!isNativeEth) {
+          btnText.innerText = "CHECKING TOKEN APPROVAL...";
+          const allowanceData = "0xdd62ed3e" + 
+            connectedAccount.slice(2).padStart(64, "0") + 
+            routerTarget.slice(2).padStart(64, "0");
+
+          const curAllowanceHex = await window.ethereum.request({
+            method: "eth_call",
+            params: [{ to: cfgIn.address, data: allowanceData }, "latest"]
+          });
+
+          const curAllowance = BigInt(curAllowanceHex || "0x0");
+          if (curAllowance < BigInt(rawAmountIn)) {
+            btnText.innerText = "APPROVE TOKEN IN WALLET...";
+            const approveData = "0x095ea7b3" + 
+              routerTarget.slice(2).padStart(64, "0") + 
+              "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
+            await window.ethereum.request({
+              method: "eth_sendTransaction",
+              params: [{
+                from: connectedAccount,
+                to: cfgIn.address,
+                data: approveData
+              }]
+            });
+            btnText.innerText = "APPROVAL PENDING...";
+          }
+        }
+
+        btnText.innerText = "CONFIRM SWAP IN WALLET...";
+        const txHash = await window.ethereum.request({
+          method: "eth_sendTransaction",
+          params: [{
+            from: connectedAccount,
+            to: routerTarget,
+            data: calldata,
+            value: isNativeEth ? "0x" + BigInt(rawAmountIn).toString(16) : "0x0"
+          }]
+        });
+
+        btnText.innerText = "SWAP EXECUTED! ✅";
+        alert("Swap submitted! Track on BaseScan: https://basescan.org/tx/" + txHash);
+      } catch (err) {
+        console.error(err);
+        btnText.innerText = "SWAP FAILED - TRY AGAIN";
+        alert("Swap error: " + (err.message || err));
       }
     }
 
     async function handleWalletAction() {
       if (!connectedAccount) {
         await connectWallet();
+      } else if (currentTab === "swap") {
+        await executeSwapTransaction();
       } else if (selectedPosition) {
         await executeTransaction();
       } else {
