@@ -8,7 +8,8 @@
     "packages/integrations/*"
   ],
   "scripts": {
-    "build": "npm --workspaces run build --if-present",
+    "build:core": "npm --workspace=@santa-rosa/core run build",
+    "build": "npm --workspace=@santa-rosa/core run build && npm --workspaces run build --if-present",
     "test": "npm --workspaces run test --if-present"
   }
 }
