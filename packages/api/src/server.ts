@@ -429,41 +429,42 @@ app.get("/", (req: Request, res: Response) => {
       <span class="badge badge-live"><span class="dot"></span> NODO BASE 8453: ACTIVO</span>
       <a href="https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57" target="_blank" class="badge" style="text-decoration:none; color:#10b981; border-color:rgba(16,185,129,0.3);">ROUTER MAINNET: 0xcd4f...0a57 ↗</a>
       <span class="badge">MORPHO 0% FEE: \$162.1M</span>
-      <button class="btn-test" onclick="triggerTestAgentCall()">⚡ Simular Llamada de Agente</button>
+      <span class="badge" id="alarmBadge" style="color: #10b981; border-color: rgba(16,185,129,0.4); font-weight: 600;">🔔 ALARMA SONORA: ACTIVA</span>
+      <button class="btn-test" id="soundTestBtn" onclick="testSoundAlert()">🔊 Probar Alarma Sonora</button>
     </div>
   </div>
 
-  <!-- 4 TARJETAS KPI -->
+  <!-- 4 TARJETAS KPI (ESTRICTAMENTE REALES ON-CHAIN) -->
   <div class="grid-kpis">
     <!-- KPI 1: Tesorería -->
-    <div class="card" style="border-top: 3px solid var(--green);">
-      <div class="kpi-label">💰 Ganancias Tesorería (80%)</div>
-      <div class="kpi-val" style="color: var(--green);" id="kpiTreasuryEarned">\$95.69</div>
+    <div class="card" style="border-top: 3px solid var(--green); position: relative;">
+      <div class="kpi-label">💰 Ganancias Reales Tesorería (Base L2)</div>
+      <div class="kpi-val" style="color: var(--green);" id="kpiTreasuryEarned">\$0.00 USDC</div>
       <div class="kpi-sub">
-        Saldo en Wallet: <span id="kpiUsdcBal" style="color: #fff; font-weight: bold;">0.049</span> USDC | 
+        Saldo On-Chain: <span id="kpiUsdcBal" style="color: #fff; font-weight: bold;">0.0492</span> USDC | 
         <span id="kpiEthBal" style="color: #fff;">0.00027</span> ETH
       </div>
     </div>
 
     <!-- KPI 2: Partners Referidos -->
     <div class="card" style="border-top: 3px solid #3b82f6;">
-      <div class="kpi-label">🤝 Pagado a Partners (20%)</div>
-      <div class="kpi-val" style="color: #3b82f6;" id="kpiPartnerEarned">\$23.92</div>
+      <div class="kpi-label">🤝 Pagado a Partners Real (20%)</div>
+      <div class="kpi-val" style="color: #3b82f6;" id="kpiPartnerEarned">\$0.00 USDC</div>
       <div class="kpi-sub">Repartido en el acto vía safeTransfer</div>
     </div>
 
     <!-- KPI 3: Agentes Conectados -->
     <div class="card" style="border-top: 3px solid #a855f7;">
       <div class="kpi-label">🤖 Agentes y Bots en el Sistema</div>
-      <div class="kpi-val" style="color: #a855f7;" id="kpiAgentsCount">3 Activos</div>
-      <div class="kpi-sub"><span id="kpiAgentsOnline" style="color: var(--green);">2 Online</span> | 1 En Espera</div>
+      <div class="kpi-val" style="color: #a855f7;" id="kpiAgentsCount">0 Activos</div>
+      <div class="kpi-sub"><span id="kpiAgentsOnline" style="color: var(--green);">0 Online</span> | 0 En Espera</div>
     </div>
 
     <!-- KPI 4: Volumen Procesado -->
     <div class="card" style="border-top: 3px solid var(--amber);">
-      <div class="kpi-label">📈 Volumen Total Procesado</div>
-      <div class="kpi-val" style="color: var(--amber);" id="kpiTotalVolume">\$47,837</div>
-      <div class="kpi-sub">Ahorro clientes: <span style="color: var(--green);" id="kpiSavings">\$2,272</span> (95.2%)</div>
+      <div class="kpi-label">📈 Volumen Real Liquidado</div>
+      <div class="kpi-val" style="color: var(--amber);" id="kpiTotalVolume">\$0 USD</div>
+      <div class="kpi-sub">Volumen de ejecuciones reales on-chain</div>
     </div>
   </div>
 
@@ -529,14 +530,105 @@ app.get("/", (req: Request, res: Response) => {
   </div>
 
   <script>
+    let previousUsdcBalance = null;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playCashChime() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+
+        // Tono 1: Campana aguda cristalina (1174 Hz -> 1760 Hz)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(1174.66, now);
+        osc1.frequency.exponentialRampToValueAtTime(1760.00, now + 0.12);
+        gain1.gain.setValueAtTime(0.4, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.8);
+
+        // Tono 2: Armónico metálico resonante (1760 Hz -> 2349 Hz)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1760.00, now + 0.08);
+        osc2.frequency.exponentialRampToValueAtTime(2349.32, now + 0.25);
+        gain2.gain.setValueAtTime(0.4, now + 0.08);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.08);
+        osc2.stop(now + 1.1);
+      } catch(e) {
+        console.warn('Audio no inicializado:', e);
+      }
+    }
+
+    function testSoundAlert() {
+      playCashChime();
+      const btn = document.getElementById('soundTestBtn');
+      if (btn) {
+        btn.innerText = '🔔 ¡Alarma Sonando!';
+        setTimeout(() => { btn.innerText = '🔊 Probar Alarma'; }, 1500);
+      }
+    }
+
+    function showCashBanner(gain: string) {
+      let banner = document.getElementById('cashBanner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'cashBanner';
+        banner.style.position = 'fixed';
+        banner.style.top = '20px';
+        banner.style.right = '20px';
+        banner.style.zIndex = '9999';
+        banner.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        banner.style.color = '#fff';
+        banner.style.padding = '16px 24px';
+        banner.style.borderRadius = '12px';
+        banner.style.boxShadow = '0 10px 25px rgba(16, 185, 129, 0.4)';
+        banner.style.fontWeight = 'bold';
+        banner.style.fontSize = '1.1rem';
+        banner.style.border = '2px solid #34d399';
+        document.body.appendChild(banner);
+      }
+      banner.innerHTML = '🎉 ¡INGRESO REAL ON-CHAIN DETECTADO EN BASE! <br><span style="font-size:1.4rem; color:#fef08a;">+' + gain + ' USDC</span> acreditados en Tesorería';
+      banner.style.display = 'block';
+      setTimeout(() => { if (banner) banner.style.display = 'none'; }, 8000);
+    }
+
     async function updateTelemetry() {
       try {
         const res = await fetch('/v1/telemetry');
         const data = await res.json();
 
-        // 1. Actualizar KPIs
-        document.getElementById('kpiTreasuryEarned').innerText = '$' + data.treasury.totalProtocolEarnedUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        document.getElementById('kpiPartnerEarned').innerText = '$' + data.treasury.totalBuilderPaidUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        // 1. Detección de Ganancia Real On-Chain y Alarma Sonora
+        const currentUsdc = Number(data.treasury.usdcBalance);
+        if (previousUsdcBalance !== null && currentUsdc > previousUsdcBalance) {
+          const gain = (currentUsdc - previousUsdcBalance).toFixed(4);
+          console.log('🚨 ¡INGRESO REAL ON-CHAIN! +' + gain + ' USDC');
+          playCashChime();
+          showCashBanner(gain);
+        }
+        previousUsdcBalance = currentUsdc;
+
+        // 2. Actualizar KPIs con Datos Reales On-Chain
+        document.getElementById('kpiTreasuryEarned').innerText = '$' + data.treasury.totalProtocolEarnedUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USDC';
+        document.getElementById('kpiPartnerEarned').innerText = '$' + data.treasury.totalBuilderPaidUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USDC';
         document.getElementById('kpiTotalVolume').innerText = '$' + Math.round(data.treasury.totalVolumeProcessedUsd).toLocaleString('en-US');
         document.getElementById('kpiUsdcBal').innerText = Number(data.treasury.usdcBalance).toFixed(4);
         document.getElementById('kpiEthBal').innerText = Number(data.treasury.ethBalance).toFixed(5);
@@ -591,32 +683,6 @@ app.get("/", (req: Request, res: Response) => {
       } catch (err) {
         console.error('Error fetching telemetry:', err);
       }
-    }
-
-    // Simular que un Agente Autónomo llama a la API en vivo
-    async function triggerTestAgentCall() {
-      const mockAgents = ['agentkit-treasury-01', 'eliza-deleverager-base', 'bot-telegram-guard-ref'];
-      const randomAgent = mockAgents[Math.floor(Math.random() * mockAgents.length)];
-      const randomAmount = Math.floor(Math.random() * 40000) + 5000;
-
-      await fetch('/v1/simulate/rescue', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-agent-id': randomAgent,
-          'x-framework': 'Coinbase AgentKit'
-        },
-        body: JSON.stringify({
-          userAddress: '0x10c53e75fE7A7E6bF58a9e68B6a30Fcc7D4e6e2c',
-          currentDebtUsd: randomAmount,
-          currentCollateralUsd: randomAmount * 1.05,
-          debtToRepayUsd: randomAmount,
-          lltvBps: 9650,
-          referralAddress: '0x2222222222222222222222222222222222222222'
-        })
-      });
-
-      updateTelemetry();
     }
 
     // Actualizar cada 2 segundos automáticamente
