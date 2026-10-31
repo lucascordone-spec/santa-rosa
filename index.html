@@ -308,7 +308,7 @@
       <div id="positionContainer" style="display: none; margin-top: 20px;"></div>
 
       <!-- MANUAL INSPECT SECTION -->
-      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
+      <div id="manualInspectSection" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
         <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">INSPECT ANY ADDRESS ON BASE:</div>
         <div class="input-group">
           <input type="text" id="customAddressInput" class="input-box" placeholder="0x... (Borrower Address on Base)">
@@ -320,7 +320,7 @@
     <!-- REFERRAL EARNINGS BOX -->
     <div class="card ref-box">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <strong style="color: #6ee7b7; font-size: 13px;">🤝 EARN 0.05% BUILDER FEE ON EVERY TRANSACTION:</strong>
+        <strong id="refBoxTitle" style="color: #6ee7b7; font-size: 13px;">🤝 EARN 0.05% BUILDER FEE ON EVERY TRANSACTION:</strong>
         <span class="badge" style="background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #6ee7b7;">20% REV SHARE</span>
       </div>
       <div style="color: var(--text-muted); margin-bottom: 12px;">
@@ -352,6 +352,10 @@
     const urlParams = new URLSearchParams(window.location.search);
     const refParam = urlParams.get("ref");
     const activeReferral = (refParam && refParam.startsWith("0x") && refParam.length === 42) ? refParam : DEFAULT_REFERRAL;
+    const tabParam = urlParams.get("tab");
+    if (tabParam === "swap") {
+      setTimeout(() => switchTab("swap"), 100);
+    }
 
     function switchTab(tab) {
       currentTab = tab;

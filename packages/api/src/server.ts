@@ -9,6 +9,10 @@ import {
   calculateRescueQuote,
   calculateLeverageQuote,
   simulateRescue,
+  calculateRouterSwapQuote,
+  getRouterSwapRoute,
+  BASE_TOKENS,
+  ROUTER_SWAP_AGGREGATOR_BASE,
   MORPHO_BLUE_BASE,
   AAVE_V3_POOL_BASE,
   BASE_RPC
@@ -143,21 +147,26 @@ app.use((req: Request, res: Response, next) => {
       const referral = mcpArgs.referralAddress || "0x2222222222222222222222222222222222222222";
 
       let action = isMcp ? (req.body?.params?.name || req.body?.method || "MCP_CALL").toUpperCase() : req.url.replace("/v1/", "").toUpperCase();
-      let amountUsd = Number(mcpArgs.borrowedAmountUsd || mcpArgs.currentDebtUsd || mcpArgs.amount || 0);
+      let amountUsd = Number(mcpArgs.borrowedAmountUsd || mcpArgs.currentDebtUsd || mcpArgs.flashLoanAmountUsd || mcpArgs.amountUsd || mcpArgs.amount || 0);
       let protocolFee = amountUsd * 0.0020;
       let builderFee = amountUsd * 0.0005;
       let savings = amountUsd * 0.0475;
 
-      if (action.includes("SIMULATE/RESCUE")) {
+      if (action.includes("SIMULATE/RESCUE") || action.includes("SIMULATE_RESCUE")) {
         action = "SIMULATE_RESCUE";
-      } else if (action.includes("QUOTE/RESCUE")) {
+      } else if (action.includes("QUOTE/RESCUE") || action.includes("QUOTE_DEBT_RESCUE")) {
         action = "QUOTE_RESCUE";
-      } else if (action.includes("QUOTE/LEVERAGE")) {
+      } else if (action.includes("LEVERAGE")) {
         action = "QUOTE_LEVERAGE";
         protocolFee = amountUsd * 0.0008;
         builderFee = amountUsd * 0.0002;
         savings = 0;
-      } else if (action.includes("BUILD-TX")) {
+      } else if (action.includes("SWAP")) {
+        action = "QUOTE_ROUTER_SWAP";
+        protocolFee = amountUsd * 0.0002; // 0.02% (2 bps)
+        builderFee = amountUsd * 0.0001;  // 0.01% (1 bp)
+        savings = amountUsd * 0.0027;     // Ahorro vs 0.30% fee tradicional
+      } else if (action.includes("BUILD")) {
         action = "BUILD_TX";
       }
 
@@ -963,6 +972,81 @@ app.post("/v1/build-tx", (req: Request, res: Response) => {
   }
 });
 
+// COTIZADOR DE ENRUTADOR DE SWAPS (0.03% Flat Fee - 0.02% Protocolo, 0.01% Referido)
+app.post("/v1/quote/swap", async (req: Request, res: Response) => {
+  try {
+    const { tokenIn, tokenOut, amountIn, amountInUsd, referralAddress } = req.body;
+    const quote = calculateRouterSwapQuote(Number(amountInUsd || 0), referralAddress);
+
+    let routeDetails = null;
+    if (tokenIn && tokenOut && amountIn) {
+      try {
+        routeDetails = await getRouterSwapRoute({
+          tokenIn: (BASE_TOKENS as any)[String(tokenIn).toUpperCase()] || String(tokenIn),
+          tokenOut: (BASE_TOKENS as any)[String(tokenOut).toUpperCase()] || String(tokenOut),
+          amountIn: String(amountIn),
+          recipient: (req.body.recipient as string) || TREASURY_WALLET,
+          slippageToleranceBps: Number(req.body.slippageToleranceBps || 50),
+          referralAddress
+        });
+      } catch (e: any) {
+        routeDetails = { warning: e.message };
+      }
+    }
+
+    res.json({
+      type: "ROUTER_SWAP",
+      service: "Santa Rosa Smart Router Swap",
+      feeStructure: "0.03% flat fee (0.02% Protocol Treasury, 0.01% Builder Referral)",
+      router: ROUTER_SWAP_AGGREGATOR_BASE,
+      quote,
+      route: routeDetails
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CONSTRUCTOR DE TRANSACCIÓN DE SWAP CON ENRUTADOR
+app.post("/v1/build-swap-tx", async (req: Request, res: Response) => {
+  try {
+    const { tokenIn, tokenOut, amountIn, recipient, slippageToleranceBps, referralAddress } = req.body;
+    if (!tokenIn || !tokenOut || !amountIn || !recipient) {
+      return res.status(400).json({ error: "tokenIn, tokenOut, amountIn, and recipient are required" });
+    }
+
+    const resolvedIn = (BASE_TOKENS as any)[String(tokenIn).toUpperCase()] || String(tokenIn);
+    const resolvedOut = (BASE_TOKENS as any)[String(tokenOut).toUpperCase()] || String(tokenOut);
+
+    const route = await getRouterSwapRoute({
+      tokenIn: resolvedIn,
+      tokenOut: resolvedOut,
+      amountIn: String(amountIn),
+      recipient: String(recipient),
+      slippageToleranceBps: Number(slippageToleranceBps || 50),
+      referralAddress: referralAddress ? String(referralAddress) : undefined
+    });
+
+    res.json({
+      status: "ready_to_sign",
+      service: "Santa Rosa Smart Router Swap",
+      to: route.routerAddress,
+      network: "Base Mainnet (8453)",
+      tokenIn: route.tokenIn,
+      tokenOut: route.tokenOut,
+      grossAmountIn: route.grossAmountIn,
+      netAmountIn: route.netAmountIn,
+      expectedAmountOut: route.expectedAmountOut,
+      amountOutUsd: route.amountOutUsd,
+      fee: route.fee,
+      calldata: route.calldata,
+      gasUsd: route.gasUsd
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============================================================================
 // ENDPOINT OFICIAL MCP (MODEL CONTEXT PROTOCOL) PARA AGENTES DE IA EXTERNOS
 // ============================================================================
@@ -1031,6 +1115,37 @@ const SANTA_ROSA_MCP_TOOLS = [
         referralAddress: { type: "string", description: "Billetera del partner para transferir el 0.05% en el bloque." }
       },
       required: ["protocol", "loanToken", "amount"]
+    }
+  },
+  {
+    name: "quote_router_swap",
+    description: "Cotiza un intercambio multiruta de cualquier token en Base L2 a través del Enrutador a una tarifa plana de 0.03% (3 bps). Distribuye 0.02% al protocolo y 0.01% al partner/referido. Ahorra 90% en tarifas de intercambio.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tokenIn: { type: "string", description: "Token de entrada (símbolo o dirección de contrato en Base)." },
+        tokenOut: { type: "string", description: "Token de salida (símbolo o dirección de contrato en Base)." },
+        amountInUsd: { type: "number", description: "Monto aproximado en USD a intercambiar." },
+        amountIn: { type: "string", description: "Monto exacto en unidades atómicas (wei/raw) del token." },
+        referralAddress: { type: "string", description: "Billetera del partner para recibir el 0.01%." }
+      },
+      required: ["tokenIn", "tokenOut"]
+    }
+  },
+  {
+    name: "build_router_swap_transaction",
+    description: "Genera la transacción y calldata lista para firmar para ejecutar un swap de cualquier token en Base a través del Enrutador con tarifa plana de 0.03% y comisión del 0.01% para el referidor.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tokenIn: { type: "string", description: "Token a entregar (símbolo o dirección)." },
+        tokenOut: { type: "string", description: "Token a recibir (símbolo o dirección)." },
+        amountIn: { type: "string", description: "Monto exacto en unidades mínimas del token." },
+        recipient: { type: "string", description: "Dirección de billetera que recibirá los tokens." },
+        slippageToleranceBps: { type: "number", description: "Slippage en bps (ej: 50 para 0.5%)." },
+        referralAddress: { type: "string", description: "Billetera del partner que recibe el 0.01%." }
+      },
+      required: ["tokenIn", "tokenOut", "amountIn", "recipient"]
     }
   }
 ];
@@ -1196,6 +1311,96 @@ app.post("/mcp", async (req: Request, res: Response) => {
           id,
           result: {
             content: [{ type: "text", text: JSON.stringify(payload, null, 2) }]
+          }
+        });
+      }
+
+      if (toolName === "quote_router_swap" || toolName === "quote_swap" || toolName === "get_swap_quote") {
+        const tokenInRaw = String(args.tokenIn || "USDC");
+        const tokenOutRaw = String(args.tokenOut || "WETH");
+        const tokenIn = (BASE_TOKENS as any)[tokenInRaw.toUpperCase()] || tokenInRaw;
+        const tokenOut = (BASE_TOKENS as any)[tokenOutRaw.toUpperCase()] || tokenOutRaw;
+        const amountInUsd = Number(args.amountInUsd || args.amount || 100);
+        const referral = String(args.referralAddress || "0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8");
+
+        const quote = calculateRouterSwapQuote(amountInUsd, referral);
+        let routeInfo: any = null;
+
+        if (args.amountIn) {
+          try {
+            routeInfo = await getRouterSwapRoute({
+              tokenIn,
+              tokenOut,
+              amountIn: String(args.amountIn),
+              recipient: referral,
+              slippageToleranceBps: Number(args.slippageToleranceBps || 50),
+              referralAddress: referral
+            });
+          } catch (e: any) {
+            routeInfo = { error: e.message };
+          }
+        }
+
+        return res.json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{
+              type: "text",
+              text: JSON.stringify({
+                service: "Santa Rosa Smart Router Swap",
+                network: "Base L2 (8453)",
+                feeModel: "0.03% Flat Fee (0.02% Protocol / 0.01% Builder Referral)",
+                tokens: { tokenIn, tokenOut },
+                quote,
+                route: routeInfo
+              }, null, 2)
+            }]
+          }
+        });
+      }
+
+      if (toolName === "build_router_swap_transaction" || toolName === "execute_swap") {
+        const tokenInRaw = String(args.tokenIn || "USDC");
+        const tokenOutRaw = String(args.tokenOut || "WETH");
+        const tokenIn = (BASE_TOKENS as any)[tokenInRaw.toUpperCase()] || tokenInRaw;
+        const tokenOut = (BASE_TOKENS as any)[tokenOutRaw.toUpperCase()] || tokenOutRaw;
+        const amountIn = String(args.amountIn || "100000000");
+        const recipient = String(args.recipient || TREASURY_WALLET);
+        const referral = String(args.referralAddress || "0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8");
+
+        const route = await getRouterSwapRoute({
+          tokenIn,
+          tokenOut,
+          amountIn,
+          recipient,
+          slippageToleranceBps: Number(args.slippageToleranceBps || 50),
+          referralAddress: referral
+        });
+
+        return res.json({
+          jsonrpc: "2.0",
+          id,
+          result: {
+            content: [{
+              type: "text",
+              text: JSON.stringify({
+                status: "ready_to_sign",
+                service: "Santa Rosa Smart Router Swap",
+                to: route.routerAddress,
+                network: "Base Mainnet (8453)",
+                value: tokenIn.toLowerCase() === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" ? route.grossAmountIn : "0x0",
+                tokenIn: route.tokenIn,
+                tokenOut: route.tokenOut,
+                grossAmountIn: route.grossAmountIn,
+                netAmountIn: route.netAmountIn,
+                expectedAmountOut: route.expectedAmountOut,
+                amountOutUsd: route.amountOutUsd,
+                calldata: route.calldata,
+                gasEstimateUsd: route.gasUsd,
+                feeDistribution: route.fee
+              }, null, 2)
+            }]
           }
         });
       }

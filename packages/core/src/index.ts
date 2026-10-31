@@ -4,6 +4,22 @@ import { base } from "viem/chains";
 export const BASE_RPC = "https://mainnet.base.org";
 export const MORPHO_BLUE_BASE = "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb";
 export const AAVE_V3_POOL_BASE = "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5";
+export const ROUTER_SWAP_AGGREGATOR_BASE = "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5";
+export const PROTOCOL_TREASURY_BASE = "0x8f7670EA615910D0A86320e84A611577F68E3908";
+export const DEFAULT_REFERRAL_BASE = "0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8";
+
+// Tokens populares verificados en Base L2
+export const BASE_TOKENS = {
+  ETH: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+  WETH: "0x4200000000000000000000000000000000000006",
+  USDC: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  cbBTC: "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+  AERO: "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
+  DEGEN: "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
+  USDe: "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34",
+  DAI: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+  VIRTUAL: "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+} as const;
 
 export const getBaseClient = (): PublicClient => {
   return createPublicClient({
@@ -238,4 +254,116 @@ export function simulateRescue(params: RescueSimulationParams): RescueSimulation
     },
   };
 }
+
+/// @notice Cotización del Enrutador de Swaps: 0.03% Total (0.02% Protocolo, 0.01% Referido Builder)
+export function calculateRouterSwapQuote(amountInUsd: number, referralAddress?: string) {
+  const TOTAL_FEE = 0.0003;      // 0.03% (3 bps)
+  const PROTOCOL_SHARE = 0.0002; // 0.02% (2 bps)
+  const BUILDER_SHARE = 0.0001;  // 0.01% (1 bp)
+
+  const totalFeeUsd = amountInUsd * TOTAL_FEE;
+  let builderFeeUsd = 0;
+  let protocolFeeUsd = totalFeeUsd;
+
+  if (referralAddress && referralAddress !== "0x0000000000000000000000000000000000000000") {
+    builderFeeUsd = amountInUsd * BUILDER_SHARE;
+    protocolFeeUsd = totalFeeUsd - builderFeeUsd;
+  }
+
+  const netSwapAmountUsd = amountInUsd - totalFeeUsd;
+
+  return {
+    action: "ROUTER_SWAP",
+    amountInUsd,
+    netSwapAmountUsd,
+    totalFeeUsd,
+    totalFeeBps: 3,
+    protocolFeeUsd,
+    protocolFeeBps: 2,
+    builderFeeUsd,
+    builderFeeBps: 1,
+    feeComparison: {
+      standardDexFeePercent: "0.30%",
+      santaRosaRouterFeePercent: "0.03%",
+      userSavingsPercent: "90% cheaper routing"
+    },
+    referral: referralAddress || null,
+  };
+}
+
+export interface RouterSwapParams {
+  tokenIn: string;
+  tokenOut: string;
+  amountIn: string; // atomic units (wei/raw)
+  recipient: string;
+  slippageToleranceBps?: number; // e.g. 50 = 0.5%
+  referralAddress?: string;
+}
+
+/// @notice Obtiene la ruta multicamino del Enrutador Inteligente con tarifa plana de 0.03%
+export async function getRouterSwapRoute(params: RouterSwapParams) {
+  const {
+    tokenIn,
+    tokenOut,
+    amountIn,
+    recipient,
+    slippageToleranceBps = 50,
+    referralAddress
+  } = params;
+
+  const amountInBig = BigInt(amountIn);
+  // Tarifa plana 0.03% (3 basis points)
+  const totalFee = (amountInBig * 3n) / 10000n;
+  const builderFee = (referralAddress && referralAddress !== "0x0000000000000000000000000000000000000000")
+    ? (amountInBig * 1n) / 10000n
+    : 0n;
+  const protocolFee = totalFee - builderFee;
+  const netAmountIn = amountInBig - totalFee;
+
+  // Consulta al motor de agregación multicamino en Base L2
+  const url = `https://aggregator-api.kyberswap.com/base/api/v1/routes?tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${netAmountIn.toString()}`;
+  const res = await fetch(url);
+  const data = await res.json() as any;
+
+  if (!data?.data?.routeSummary) {
+    throw new Error(data.message || "No se encontró ruta de intercambio en el enrutador");
+  }
+
+  const routeSummary = data.data.routeSummary;
+
+  // Construcción de la transacción con el enrutador
+  const buildRes = await fetch("https://aggregator-api.kyberswap.com/base/api/v1/route/build", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      routeSummary,
+      sender: recipient,
+      recipient: recipient,
+      slippageTolerance: slippageToleranceBps
+    })
+  });
+  const buildData = await buildRes.json() as any;
+
+  return {
+    routerAddress: buildData.data?.routerAddress || ROUTER_SWAP_AGGREGATOR_BASE,
+    tokenIn,
+    tokenOut,
+    grossAmountIn: amountIn,
+    netAmountIn: netAmountIn.toString(),
+    expectedAmountOut: routeSummary.amountOut,
+    amountOutUsd: routeSummary.amountOutUsd,
+    gasUsd: routeSummary.gasUsd,
+    fee: {
+      totalFee: totalFee.toString(),
+      totalFeeBps: 3,
+      protocolFee: protocolFee.toString(),
+      protocolFeeRecipient: PROTOCOL_TREASURY_BASE,
+      builderFee: builderFee.toString(),
+      builderFeeRecipient: referralAddress || DEFAULT_REFERRAL_BASE
+    },
+    calldata: buildData.data?.data || "0x",
+    routeHops: routeSummary.route?.length || 1
+  };
+}
+
 

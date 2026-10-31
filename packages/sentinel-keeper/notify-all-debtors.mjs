@@ -67,7 +67,7 @@ async function notifyDebtors(dryRun = true, maxTargets = 10) {
   console.log("\n📦 Preparing On-Chain Memos for each debtor:\n");
 
   for (const t of priorityTargets) {
-    const memoText = `LIQUIDATION ALERT: Morpho Base HF ${t.healthFactor}. Avoid losing $${Math.round(t.debtUsd * 0.05).toLocaleString()} penalty. 1-Click Rescue: https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57#writeContract or Gateway: https://sunset-determining-budget-deluxe.trycloudflare.com`;
+    const memoText = `Morpho Base Loan: Close your debt & cash out profits with 0% upfront cash using Santa Rosa: https://lucascordone-spec.github.io/santa-rosa/`;
     const memoHex = toHex(memoText);
 
     console.log(`────────────────────────────────────────────────────────────────────────────────`);
