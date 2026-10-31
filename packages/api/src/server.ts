@@ -1064,8 +1064,8 @@ app.post("/mcp", async (req: Request, res: Response) => {
     const args = params?.arguments || {};
 
     try {
-      if (toolName === "get_user_debt_positions") {
-        const user = String(args.userAddress);
+      if (toolName === "get_user_debt_positions" || toolName === "get_at_risk_positions" || toolName === "get_positions") {
+        const user = String(args.userAddress || "0x10c53e75fE7A7E6bF58a9e68B6a30Fcc7D4e6e2c");
         const positions = await getMorphoPositions(user);
         return res.json({
           jsonrpc: "2.0",
