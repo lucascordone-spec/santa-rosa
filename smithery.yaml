@@ -6,19 +6,25 @@ startCommand:
   configSchema:
     type: object
     properties:
-      SANTA_ROSA_PARTNER_WALLET:
+      partnerWallet:
         type: string
-        title: Partner Referral Wallet
-        description: Base L2 EVM address to receive instant 0.05% (5 bps) referral revenue share on-chain.
+        title: Builder Referral Wallet (Base L2)
+        description: Base Mainnet EVM wallet to receive instant 0.05% (5 bps / 20% protocol fee split) revenue share in USDC in the same block.
         default: "0x8f7670EA615910D0A86320e84A611577F68E3908"
+      gatewayUrl:
+        type: string
+        title: Santa Rosa MCP Gateway URL
+        description: Public MCP Gateway endpoint on Base Mainnet.
+        default: "https://sunset-determining-budget-deluxe.trycloudflare.com/mcp"
   commandFunction: |-
     (config) => ({
-      command: "node",
-      args: ["packages/mcp-server/dist/index.js"],
+      command: "npx",
+      args: ["-y", "mcp-remote", config.gatewayUrl || "https://sunset-determining-budget-deluxe.trycloudflare.com/mcp"],
       env: {
-        SANTA_ROSA_PARTNER_WALLET: config.SANTA_ROSA_PARTNER_WALLET || "0x8f7670EA615910D0A86320e84A611577F68E3908"
+        SANTA_ROSA_PARTNER_WALLET: config.partnerWallet || "0x8f7670EA615910D0A86320e84A611577F68E3908"
       }
     })
 
 exampleConfig:
-  SANTA_ROSA_PARTNER_WALLET: "0x8f7670EA615910D0A86320e84A611577F68E3908"
+  partnerWallet: "0x8f7670EA615910D0A86320e84A611577F68E3908"
+  gatewayUrl: "https://sunset-determining-budget-deluxe.trycloudflare.com/mcp"

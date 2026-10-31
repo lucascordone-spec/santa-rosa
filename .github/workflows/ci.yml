@@ -1,0 +1,61 @@
+name: CI — Santa Rosa Protocol Test & Build
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  foundry-test:
+    name: Foundry Contracts Compilation & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry Toolchain
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Verify Foundry Version
+        run: |
+          forge --version
+          cast --version
+
+      - name: Compile Smart Contracts
+        run: |
+          cd contracts
+          forge build --sizes
+
+      - name: Run Foundry Unit & Security Tests
+        run: |
+          cd contracts
+          forge test --match-path test/FlashShiftRouter.t.sol -vvv
+
+  typescript-build:
+    name: TypeScript Packages Compilation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build All TypeScript Workspaces
+        run: npm run build
+
+      - name: Verify Sentinel Keeper Bot CLI Dry-Run
+        run: |
+          node packages/sentinel-keeper/sentinel.mjs --dry-run

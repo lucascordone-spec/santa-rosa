@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "santa-rosa": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://sunset-determining-budget-deluxe.trycloudflare.com/mcp"
+      ],
+      "env": {
+        "SANTA_ROSA_PARTNER_WALLET": "0x8f7670EA615910D0A86320e84A611577F68E3908"
+      }
+    }
+  }
+}

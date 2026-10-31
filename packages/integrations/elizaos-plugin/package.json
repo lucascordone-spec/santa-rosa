@@ -1,0 +1,35 @@
+{
+  "name": "@santa-rosa/plugin-elizaos",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "ElizaOS plugin for Santa Rosa Protocol: Headless DeFi debt rescue, 0% Morpho flash loans, and 0.05% builder revenue share on Base L2",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node dist/index.js",
+    "test": "node test-plugin.js"
+  },
+  "keywords": [
+    "elizaos",
+    "eliza",
+    "plugin",
+    "base",
+    "defi",
+    "debt-rescue",
+    "morpho-blue",
+    "ai-agents",
+    "flash-loans"
+  ],
+  "author": "Santa Rosa Protocol",
+  "license": "MIT",
+  "dependencies": {
+    "@elizaos/core": "^0.1.7",
+    "viem": "^2.21.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
+  }
+}

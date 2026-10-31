@@ -1,0 +1,35 @@
+{
+  "name": "@santa-rosa/agentkit-action-provider",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Native Santa Rosa & FlashShift Action Provider for Coinbase AgentKit on Base L2",
+  "main": "dist/santaRosaActionProvider.js",
+  "types": "dist/santaRosaActionProvider.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node --experimental-strip-types example-agent.ts",
+    "test": "node --experimental-strip-types example-agent.ts"
+  },
+  "keywords": [
+    "coinbase",
+    "agentkit",
+    "base",
+    "defi",
+    "debt-rescue",
+    "flash-loans",
+    "mcp",
+    "morpho-blue",
+    "revenue-share"
+  ],
+  "author": "Santa Rosa Protocol",
+  "license": "MIT",
+  "dependencies": {
+    "@coinbase/agentkit": "^0.1.0",
+    "viem": "^2.21.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
+  }
+}

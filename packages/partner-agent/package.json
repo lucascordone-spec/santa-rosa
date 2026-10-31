@@ -2,14 +2,19 @@
   "name": "@flashshift/partner-agent",
   "version": "1.0.0",
   "description": "Agente de Adquisición de Partners y B2B Outreach para FlashShift en Base L2",
+  "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "partner-agent": "dist/cli.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "pitch": "node dist/cli.js"
   },
   "dependencies": {
-    "@flashshift/core": "*"
+    "@santa-rosa/core": "*"
   },
   "devDependencies": {
     "typescript": "^5.4.0",

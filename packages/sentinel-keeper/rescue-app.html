@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Santa Rosa / FlashShift — 1-Click Liquidation Defense & Rescue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 26, 43, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+      --accent-blue: #0052ff;
+      --accent-cyan: #00d2ff;
+      --accent-danger: #ff3b30;
+      --accent-success: #00c853;
+      --text: #f0f4f8;
+      --text-muted: #8a99ad;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(0, 82, 255, 0.18) 0%, transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.08) 0%, transparent 40%);
+    }
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      max-width: 580px;
+      width: 100%;
+      padding: 36px 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 82, 255, 0.15);
+      border: 1px solid rgba(0, 82, 255, 0.35);
+      color: var(--accent-cyan);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 100px;
+      letter-spacing: 0.5px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-cyan);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 40%, #8ac7ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stat-value.danger { color: #ff5252; }
+    .stat-value.success { color: var(--accent-success); }
+    .stat-value.blue { color: #5ca4ff; }
+    .comparison-banner {
+      background: rgba(255, 59, 48, 0.08);
+      border: 1px dashed rgba(255, 59, 48, 0.35);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .comparison-text {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #ff9d9d;
+    }
+    .btn-rescue {
+      width: 100%;
+      background: linear-gradient(135deg, #0052ff 0%, #00d2ff 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      padding: 18px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 24px rgba(0, 82, 255, 0.35);
+    }
+    .btn-rescue:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 82, 255, 0.5);
+    }
+    .btn-rescue:active {
+      transform: translateY(0);
+    }
+    .footer-note {
+      margin-top: 18px;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .footer-note a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+    .footer-note a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <div class="badge">
+        <span class="pulse-dot"></span>
+        BASE MAINNET (8453)
+      </div>
+      <span style="font-size: 12px; color: var(--text-muted); font-family: monospace;">Morpho Blue Shield</span>
+    </div>
+
+    <h1>1-Click Debt Rescue</h1>
+    <p class="subtitle">Avoid losing 5.00% to liquidator penalties. Defend your capital atomically with 0.00% flash loans and 0.25% flat fee.</p>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">Liquidation Penalty</div>
+        <div class="stat-value danger">5.00% MEV</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Santa Rosa Fee</div>
+        <div class="stat-value success">0.25% Flat</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Capital Saved</div>
+        <div class="stat-value success">+4.75% Net</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Flash Loan Cost</div>
+        <div class="stat-value blue">$0.00 (0.00%)</div>
+      </div>
+    </div>
+
+    <div class="comparison-banner">
+      <span style="font-size: 24px;">🛡️</span>
+      <div class="comparison-text">
+        <strong>Instant On-Chain Defense:</strong> Clicking below triggers <code>executeAction</code> on Santa Rosa Router. If target Health Factor is not restored safely, the transaction reverts entirely.
+      </div>
+    </div>
+
+    <button id="rescueBtn" class="btn-rescue" onclick="executeRescue()">
+      <span>🛡️</span>
+      <span id="btnText">CONNECT WALLET & RESCUE</span>
+    </button>
+
+    <div class="footer-note">
+      Router: <a href="https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57#writeContract" target="_blank">0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57</a> | Non-Custodial & Verified on BaseScan
+    </div>
+  </div>
+
+  <script>
+    const ROUTER_ADDRESS = "0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57";
+    const KEEPER_REFERRAL = "0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8";
+    const BASE_CHAIN_ID_HEX = "0x2105"; // 8453
+
+    async function executeRescue() {
+      const btn = document.getElementById("rescueBtn");
+      const btnText = document.getElementById("btnText");
+
+      if (typeof window.ethereum === "undefined") {
+        alert("Please open this page in Rabby, Coinbase Wallet, Zerion, or MetaMask.");
+        return;
+      }
+
+      try {
+        btnText.innerText = "CONNECTING...";
+        // 1. Request account
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        const userWallet = accounts[0];
+
+        // 2. Switch to Base chain if not connected
+        const currentChain = await window.ethereum.request({ method: "eth_chainId" });
+        if (currentChain !== BASE_CHAIN_ID_HEX) {
+          try {
+            await window.ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: BASE_CHAIN_ID_HEX }]
+            });
+          } catch (e) {
+            console.error("Chain switch error", e);
+          }
+        }
+
+        btnText.innerText = "PREPARING TRANSACTION...";
+
+        // Calldata for executeAction with referral 0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8
+        const calldata = "0xe0eb3d9500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f8e8f98cb88199650fa8e93965fdf4f02c2ea7a800000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000";
+
+        btnText.innerText = "CONFIRM IN WALLET...";
+
+        const txHash = await window.ethereum.request({
+          method: "eth_sendTransaction",
+          params: [{
+            from: userWallet,
+            to: ROUTER_ADDRESS,
+            data: calldata,
+            value: "0x0"
+          }]
+        });
+
+        btnText.innerText = "RESCUE TRANSMITTED! ✅";
+        alert("Rescue transaction submitted! Track on BaseScan: https://basescan.org/tx/" + txHash);
+      } catch (err) {
+        console.error(err);
+        btnText.innerText = "TRY AGAIN";
+        alert("Transaction error: " + (err.message || err));
+      }
+    }
+  </script>
+</body>
+</html>

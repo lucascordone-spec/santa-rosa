@@ -1,0 +1,34 @@
+{
+  "name": "@santa-rosa/sentinel-keeper",
+  "version": "1.0.0",
+  "description": "Autonomous Volume Sentinel & Anti-Liquidation MEV Keeper Bot on Base L2",
+  "type": "module",
+  "main": "sentinel.mjs",
+  "bin": {
+    "sentinel-keeper": "./sentinel.mjs"
+  },
+  "scripts": {
+    "start": "node sentinel.mjs",
+    "scan": "node sentinel.mjs --dry-run",
+    "monitor": "node sentinel.mjs --poll --interval 10"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "defi",
+    "base-l2",
+    "keeper-bot",
+    "mev",
+    "morpho-blue",
+    "mcp",
+    "anti-liquidation",
+    "revenue-share",
+    "flash-loans"
+  ],
+  "author": "Santa Rosa Protocol",
+  "license": "MIT"
+}

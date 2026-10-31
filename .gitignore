@@ -1,7 +1,18 @@
 # Código Propietario Santa Rosa (Protegido - Nunca en Git)
 contracts/
-packages/
-docs/
+packages/*
+!packages/integrations/
+!packages/integrations/**
+!packages/sentinel-keeper/
+!packages/sentinel-keeper/**
+!packages/partner-agent/
+!packages/partner-agent/**
+!packages/partner-agent/src/**
+docs/*
+!docs/guia_publicacion_directorios_mcp.md
+!docs/farcaster_x_outreach_templates.md
+!docs/pull_request_awesome_mcp.md
+!docs/github_launch_kit.md
 *.js
 *.mjs
 *.ts
@@ -9,6 +20,8 @@ docs/
 *.json
 !package.json
 !smithery.yaml
+!packages/integrations/**
+!packages/sentinel-keeper/**
 LEADS_*.md
 PARTNER_OUTREACH_*.md
 NORMAS_*.md
