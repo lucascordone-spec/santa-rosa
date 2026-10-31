@@ -535,7 +535,7 @@ app.get("/", (req: Request, res: Response) => {
 
     function getAudioContext() {
       if (!audioCtx) {
-        audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioCtx = new (window.AudioContext || window['webkitAudioContext'])();
       }
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
@@ -587,7 +587,7 @@ app.get("/", (req: Request, res: Response) => {
       }
     }
 
-    function showCashBanner(gain: string) {
+    function showCashBanner(gain) {
       let banner = document.getElementById('cashBanner');
       if (!banner) {
         banner = document.createElement('div');
