@@ -22,6 +22,7 @@ docs/*
 !smithery.yaml
 !packages/integrations/**
 !packages/sentinel-keeper/**
+!packages/partner-agent/**
 LEADS_*.md
 PARTNER_OUTREACH_*.md
 NORMAS_*.md
