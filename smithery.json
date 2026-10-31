@@ -1,0 +1,16 @@
+{
+  "name": "santa-rosa-protocol",
+  "displayName": "Santa Rosa Protocol (Base L2)",
+  "description": "Headless autonomous DeFi debt rescue, 1-click atomic debt unwinds, and leverage operations with 0.00% Morpho flash loans on Base L2. Features native 80/20 on-chain builder revenue sharing.",
+  "version": "1.0.0",
+  "tags": ["defi", "base", "morpho", "flash-loans", "arbitrage", "debt-rescue", "mcp", "web3"],
+  "homepage": "https://lucascordone-spec.github.io/santa-rosa/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucascordone-spec/santa-rosa"
+  },
+  "startCommand": {
+    "type": "http",
+    "url": "https://sunset-determining-budget-deluxe.trycloudflare.com/mcp"
+  }
+}
