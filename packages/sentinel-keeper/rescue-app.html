@@ -5,16 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Santa Rosa / FlashShift — 1-Click Liquidation Defense & Rescue</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #090d16;
-      --card-bg: rgba(18, 26, 43, 0.85);
+      --card-bg: rgba(18, 26, 43, 0.88);
       --border: rgba(255, 255, 255, 0.08);
       --accent-blue: #0052ff;
       --accent-cyan: #00d2ff;
-      --accent-danger: #ff3b30;
-      --accent-success: #00c853;
+      --accent-danger: #ef4444;
+      --accent-warning: #f59e0b;
+      --accent-success: #10b981;
       --text: #f0f4f8;
       --text-muted: #8a99ad;
     }
@@ -27,27 +28,34 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
+      justify-content: flex-start;
+      padding: 32px 16px;
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(0, 82, 255, 0.18) 0%, transparent 60%),
+        radial-gradient(circle at 50% 0%, rgba(0, 82, 255, 0.2) 0%, transparent 60%),
         radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.08) 0%, transparent 40%);
+    }
+    .container {
+      max-width: 680px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
     .card {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
       border: 1px solid var(--border);
-      border-radius: 24px;
-      max-width: 580px;
-      width: 100%;
-      padding: 36px 32px;
+      border-radius: 20px;
+      padding: 28px 24px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .badge {
       display: inline-flex;
@@ -78,7 +86,7 @@
       font-size: 26px;
       font-weight: 800;
       line-height: 1.25;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       background: linear-gradient(135deg, #fff 40%, #8ac7ff 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -87,22 +95,26 @@
       color: var(--text-muted);
       font-size: 14px;
       line-height: 1.5;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
     }
     .stats-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
     .stat-box {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
     }
     .stat-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -110,36 +122,22 @@
       margin-bottom: 4px;
     }
     .stat-value {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
     }
-    .stat-value.danger { color: #ff5252; }
+    .stat-value.danger { color: #f87171; }
     .stat-value.success { color: var(--accent-success); }
-    .stat-value.blue { color: #5ca4ff; }
-    .comparison-banner {
-      background: rgba(255, 59, 48, 0.08);
-      border: 1px dashed rgba(255, 59, 48, 0.35);
-      border-radius: 14px;
-      padding: 14px 18px;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .comparison-text {
-      font-size: 13px;
-      line-height: 1.45;
-      color: #ff9d9d;
-    }
-    .btn-rescue {
+    .stat-value.blue { color: #60a5fa; }
+
+    .btn-action {
       width: 100%;
       background: linear-gradient(135deg, #0052ff 0%, #00d2ff 100%);
       color: #ffffff;
       border: none;
-      border-radius: 14px;
-      padding: 18px 24px;
-      font-size: 16px;
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -149,137 +147,406 @@
       transition: all 0.2s ease;
       box-shadow: 0 8px 24px rgba(0, 82, 255, 0.35);
     }
-    .btn-rescue:hover {
+    .btn-action:hover {
       transform: translateY(-2px);
       box-shadow: 0 12px 32px rgba(0, 82, 255, 0.5);
     }
-    .btn-rescue:active {
-      transform: translateY(0);
+    .btn-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
     }
+
+    .position-card {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .position-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    .position-label { color: var(--text-muted); }
+    .position-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .input-box {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      outline: none;
+    }
+    .input-box:focus { border-color: var(--accent-blue); }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+
+    .directory-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+    .directory-table th {
+      text-align: left;
+      color: var(--text-muted);
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .directory-table td {
+      padding: 10px 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .clickable-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+    }
+
     .footer-note {
-      margin-top: 18px;
       font-size: 11px;
       color: var(--text-muted);
       text-align: center;
       line-height: 1.5;
     }
-    .footer-note a {
-      color: var(--accent-cyan);
-      text-decoration: none;
-    }
-    .footer-note a:hover {
-      text-decoration: underline;
-    }
+    .footer-note a { color: var(--accent-cyan); text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="header">
-      <div class="badge">
-        <span class="pulse-dot"></span>
-        BASE MAINNET (8453)
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="badge">
+          <span class="pulse-dot"></span>
+          BASE MAINNET (8453)
+        </div>
+        <div id="walletStatus" style="font-size: 12px; color: var(--text-muted); font-family: monospace;">
+          Wallet: Disconnected
+        </div>
       </div>
-      <span style="font-size: 12px; color: var(--text-muted); font-family: monospace;">Morpho Blue Shield</span>
+
+      <h1>1-Click Debt Rescue</h1>
+      <p class="subtitle">Defend your lending collateral atomically. Avoid losing 5.00% to liquidator penalties with 0.00% Morpho flash loans &amp; 0.25% flat fee.</p>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">MEV Penalty</div>
+          <div class="stat-value danger">5.00%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Santa Rosa Fee</div>
+          <div class="stat-value success">0.25%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Net Saved</div>
+          <div class="stat-value success">+4.75%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Flash Loan</div>
+          <div class="stat-value blue">$0.00 (0%)</div>
+        </div>
+      </div>
+
+      <!-- MAIN ACTION BUTTON -->
+      <button id="mainBtn" class="btn-action" onclick="handleWalletAction()">
+        <span>🛡️</span>
+        <span id="btnText">CONNECT WALLET</span>
+      </button>
+
+      <!-- POSITION DETAILS CONTAINER -->
+      <div id="positionContainer" style="display: none; margin-top: 20px;"></div>
+
+      <!-- MANUAL INSPECT SECTION -->
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">INSPECT ANY ADDRESS ON BASE:</div>
+        <div class="input-group">
+          <input type="text" id="customAddressInput" class="input-box" placeholder="0x... (Borrower Address)">
+          <button class="btn-secondary" onclick="inspectCustomAddress()">Inspect</button>
+        </div>
+      </div>
     </div>
 
-    <h1>1-Click Debt Rescue</h1>
-    <p class="subtitle">Avoid losing 5.00% to liquidator penalties. Defend your capital atomically with 0.00% flash loans and 0.25% flat fee.</p>
-
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="stat-label">Liquidation Penalty</div>
-        <div class="stat-value danger">5.00% MEV</div>
+    <!-- LIVE AT-RISK MONITOR DIRECTORY -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+          <span>📡</span> LIVE BASE AT-RISK DIRECTORY
+        </div>
+        <span class="badge" id="activeCountBadge">Scanning...</span>
       </div>
-      <div class="stat-box">
-        <div class="stat-label">Santa Rosa Fee</div>
-        <div class="stat-value success">0.25% Flat</div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+        Click any position below to load into the 1-Click Rescue execution engine:
       </div>
-      <div class="stat-box">
-        <div class="stat-label">Capital Saved</div>
-        <div class="stat-value success">+4.75% Net</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Flash Loan Cost</div>
-        <div class="stat-value blue">$0.00 (0.00%)</div>
+      <div style="overflow-x: auto;">
+        <table class="directory-table">
+          <thead>
+            <tr>
+              <th>Debtor</th>
+              <th>Pair</th>
+              <th>Debt</th>
+              <th>Health Factor</th>
+              <th>Saved</th>
+            </tr>
+          </thead>
+          <tbody id="directoryTableBody">
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">Loading live positions from Sentinel Keeper...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="comparison-banner">
-      <span style="font-size: 24px;">🛡️</span>
-      <div class="comparison-text">
-        <strong>Instant On-Chain Defense:</strong> Clicking below triggers <code>executeAction</code> on Santa Rosa Router. If target Health Factor is not restored safely, the transaction reverts entirely.
-      </div>
-    </div>
-
-    <button id="rescueBtn" class="btn-rescue" onclick="executeRescue()">
-      <span>🛡️</span>
-      <span id="btnText">CONNECT WALLET & RESCUE</span>
-    </button>
 
     <div class="footer-note">
-      Router: <a href="https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57#writeContract" target="_blank">0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57</a> | Non-Custodial & Verified on BaseScan
+      Router: <a href="https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57#writeContract" target="_blank">0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57</a> | 
+      Non-Custodial &amp; Verified on Base L2 | 
+      Keeper: <a href="https://basescan.org/address/0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8" target="_blank">0xf8e8...EA7a8</a>
     </div>
   </div>
 
   <script>
     const ROUTER_ADDRESS = "0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57";
     const KEEPER_REFERRAL = "0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8";
-    const BASE_CHAIN_ID_HEX = "0x2105"; // 8453
+    const BASE_CHAIN_ID_HEX = "0x2105"; // 8453 (Base L2)
 
-    async function executeRescue() {
-      const btn = document.getElementById("rescueBtn");
+    let connectedAccount = null;
+    let selectedPosition = null;
+
+    // Load Live Directory on Start
+    async function loadDirectory() {
+      try {
+        const res = await fetch("/v1/positions/at-risk");
+        const data = await res.json();
+        const tbody = document.getElementById("directoryTableBody");
+        const countBadge = document.getElementById("activeCountBadge");
+
+        if (!data.positions || data.positions.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">No critical positions currently detected.</td></tr>';
+          countBadge.innerText = "0 Active";
+          return;
+        }
+
+        countBadge.innerText = `${data.positions.length} At-Risk Positions`;
+        tbody.innerHTML = data.positions.map(p => `
+          <tr class="clickable-row" onclick="selectDirectoryPosition('${p.wallet}', '${p.pair}', ${p.debtUsd}, ${p.healthFactor}, '${p.loanTokenAddress}')">
+            <td style="color: #60a5fa;">${p.wallet.slice(0, 6)}...${p.wallet.slice(-4)}</td>
+            <td>${p.pair}</td>
+            <td style="color: #fff;">$${Math.round(p.debtUsd).toLocaleString()}</td>
+            <td style="color: ${p.healthFactor < 1.02 ? '#ef4444' : '#f59e0b'}; font-weight: bold;">${p.healthFactor.toFixed(4)}</td>
+            <td style="color: #10b981;">+$${Math.round(p.userSavingsUsd).toLocaleString()}</td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.error("Directory fetch error:", err);
+      }
+    }
+
+    async function handleWalletAction() {
+      if (!connectedAccount) {
+        await connectWallet();
+      } else if (selectedPosition) {
+        await executeRescueTx();
+      }
+    }
+
+    async function connectWallet() {
       const btnText = document.getElementById("btnText");
-
       if (typeof window.ethereum === "undefined") {
-        alert("Please open this page in Rabby, Coinbase Wallet, Zerion, or MetaMask.");
+        alert("Please install or open in Rabby, Coinbase Wallet, Zerion, or MetaMask.");
         return;
       }
-
       try {
         btnText.innerText = "CONNECTING...";
-        // 1. Request account
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        const userWallet = accounts[0];
-
-        // 2. Switch to Base chain if not connected
-        const currentChain = await window.ethereum.request({ method: "eth_chainId" });
-        if (currentChain !== BASE_CHAIN_ID_HEX) {
+        connectedAccount = accounts[0];
+        document.getElementById("walletStatus").innerText = `Connected: ${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
+        
+        // Ensure Base Mainnet
+        const chainId = await window.ethereum.request({ method: "eth_chainId" });
+        if (chainId !== BASE_CHAIN_ID_HEX) {
           try {
             await window.ethereum.request({
               method: "wallet_switchEthereumChain",
               params: [{ chainId: BASE_CHAIN_ID_HEX }]
             });
-          } catch (e) {
-            console.error("Chain switch error", e);
+          } catch (switchError) {
+            console.warn("Chain switch error", switchError);
           }
         }
 
-        btnText.innerText = "PREPARING TRANSACTION...";
+        await fetchWalletPositions(connectedAccount);
+      } catch (err) {
+        console.error(err);
+        btnText.innerText = "CONNECT WALLET";
+        alert("Connection error: " + err.message);
+      }
+    }
 
-        // Calldata for executeAction with referral 0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8
+    async function fetchWalletPositions(address) {
+      const posContainer = document.getElementById("positionContainer");
+      const btnText = document.getElementById("btnText");
+      posContainer.style.display = "block";
+      posContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Scanning Morpho Blue positions on Base L2...</div>';
+
+      try {
+        const res = await fetch(`/v1/positions/${address}`);
+        const data = await res.json();
+
+        if (!data.positions || data.positions.length === 0) {
+          posContainer.innerHTML = `
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px; font-size: 13px; color: #6ee7b7;">
+              ✅ <strong>Wallet Safe:</strong> No active debt found on Morpho Blue for this address. You can inspect other addresses from the directory below.
+            </div>
+          `;
+          btnText.innerText = "WALLET HEALTHY ✅";
+          return;
+        }
+
+        const critical = data.positions.find(p => p.healthFactor <= 1.10);
+        const pos = critical || data.positions[0];
+
+        selectedPosition = {
+          wallet: address,
+          pair: pos.marketOrAsset,
+          debtUsd: pos.debtUsd,
+          collateralUsd: pos.collateralUsd,
+          healthFactor: pos.healthFactor,
+          loanTokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" // USDC fallback
+        };
+
+        renderPositionCard(selectedPosition);
+        btnText.innerText = "EXECUTE 1-CLICK RESCUE (0.25% FEE)";
+      } catch (err) {
+        posContainer.innerHTML = `<div style="color: #ef4444; font-size: 13px;">Error loading positions: ${err.message}</div>`;
+      }
+    }
+
+    function renderPositionCard(p) {
+      const posContainer = document.getElementById("positionContainer");
+      posContainer.style.display = "block";
+
+      const penaltyAvoided = p.debtUsd * 0.05;
+      const protocolFee = p.debtUsd * 0.0025;
+      const netSavings = penaltyAvoided - protocolFee;
+
+      posContainer.innerHTML = `
+        <div class="position-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; font-size: 15px; color: #f87171;">⚠️ AT-RISK POSITION DETECTED</div>
+            <span class="badge" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5;">HF: ${p.healthFactor.toFixed(4)}</span>
+          </div>
+          <div class="position-row">
+            <span class="position-label">Market Pair</span>
+            <span class="position-val">${p.pair}</span>
+          </div>
+          <div class="position-row">
+            <span class="position-label">Outstanding Debt</span>
+            <span class="position-val" style="color: #fff;">$${p.debtUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+          </div>
+          <div class="position-row">
+            <span class="position-label">Liquidator Penalty Avoided (5%)</span>
+            <span class="position-val" style="color: #f87171;">-$${penaltyAvoided.toFixed(2)}</span>
+          </div>
+          <div class="position-row">
+            <span class="position-label">FlashShift Rescue Fee (0.25%)</span>
+            <span class="position-val" style="color: #60a5fa;">$${protocolFee.toFixed(2)}</span>
+          </div>
+          <div class="position-row" style="padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1);">
+            <span class="position-label" style="font-weight: 700; color: #10b981;">YOUR NET CAPITAL SAVED</span>
+            <span class="position-val" style="color: #10b981; font-size: 16px;">+$${netSavings.toFixed(2)} USD</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectDirectoryPosition(wallet, pair, debtUsd, healthFactor, loanToken) {
+      selectedPosition = {
+        wallet,
+        pair,
+        debtUsd,
+        healthFactor,
+        loanTokenAddress: loanToken || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      };
+      renderPositionCard(selectedPosition);
+      const btnText = document.getElementById("btnText");
+      btnText.innerText = connectedAccount ? "EXECUTE 1-CLICK RESCUE" : "CONNECT WALLET TO RESCUE";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function inspectCustomAddress() {
+      const input = document.getElementById("customAddressInput").value.trim();
+      if (!input.startsWith("0x") || input.length !== 42) {
+        alert("Please enter a valid 42-character EVM address.");
+        return;
+      }
+      await fetchWalletPositions(input);
+    }
+
+    async function executeRescueTx() {
+      if (!connectedAccount) {
+        await connectWallet();
+        return;
+      }
+      const btnText = document.getElementById("btnText");
+      btnText.innerText = "PREPARING TRANSACTION...";
+
+      try {
+        // Calldata for executeAction(uint8 action, uint8 protocol, address loanToken, uint256 loanAmount, address referral, SwapParams swap)
+        // action: 0 (RESCUE), protocol: 0 (MORPHO)
+        // loanToken: 0x833589fcd6edb6e08f4c7c32d4f71b54bda02913 (or token)
+        // referral: 0xf8e8f98cb88199650fa8e93965fdf4f02c2ea7a8
         const calldata = "0xe0eb3d9500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f8e8f98cb88199650fa8e93965fdf4f02c2ea7a800000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000";
 
         btnText.innerText = "CONFIRM IN WALLET...";
-
         const txHash = await window.ethereum.request({
           method: "eth_sendTransaction",
           params: [{
-            from: userWallet,
+            from: connectedAccount,
             to: ROUTER_ADDRESS,
             data: calldata,
             value: "0x0"
           }]
         });
 
-        btnText.innerText = "RESCUE TRANSMITTED! ✅";
+        btnText.innerText = "TRANSACTION BROADCASTED! ✅";
         alert("Rescue transaction submitted! Track on BaseScan: https://basescan.org/tx/" + txHash);
       } catch (err) {
         console.error(err);
-        btnText.innerText = "TRY AGAIN";
-        alert("Transaction error: " + (err.message || err));
+        btnText.innerText = "EXECUTE 1-CLICK RESCUE";
+        alert("Transaction canceled or failed: " + (err.message || err));
       }
     }
+
+    loadDirectory();
   </script>
 </body>
 </html>

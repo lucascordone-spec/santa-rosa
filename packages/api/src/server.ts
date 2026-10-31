@@ -1,5 +1,7 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
+import fs from "fs";
+import path from "path";
 import { createPublicClient, http, formatEther, formatUnits } from "viem";
 import { base } from "viem/chains";
 import {
@@ -209,6 +211,32 @@ app.get("/v1/telemetry", async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// 1-CLICK RESCUE APP (GET /rescue)
+app.get("/rescue", (req: Request, res: Response) => {
+  const possiblePaths = [
+    path.resolve(process.cwd(), "packages/sentinel-keeper/rescue-app.html"),
+    path.resolve(process.cwd(), "index.html")
+  ];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) return res.sendFile(p);
+  }
+  return res.redirect("/");
+});
+
+// POSICIONES EN RIESGO ACTIVAS MONITOREADAS (GET /v1/positions/at-risk)
+app.get("/v1/positions/at-risk", (req: Request, res: Response) => {
+  try {
+    const filePath = path.resolve(process.cwd(), "packages/sentinel-keeper/all-at-risk-positions.json");
+    if (fs.existsSync(filePath)) {
+      const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+      return res.json({ count: data.length, positions: data });
+    }
+    return res.json({ count: 0, positions: [] });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -425,13 +453,26 @@ app.get("/", (req: Request, res: Response) => {
         Router de Infraestructura Headless & Telemetría M2M — Base L2
       </div>
     </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <a href="/rescue" class="btn-test" style="text-decoration:none; background: linear-gradient(135deg, #0052ff, #00d2ff); box-shadow: 0 0 16px rgba(0,210,255,0.4); font-weight: 700; color: #fff;">🛡️ 1-CLICK RESCUE APP ➔</a>
       <span class="badge badge-live"><span class="dot"></span> NODO BASE 8453: ACTIVO</span>
       <a href="https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57" target="_blank" class="badge" style="text-decoration:none; color:#10b981; border-color:rgba(16,185,129,0.3);">ROUTER MAINNET: 0xcd4f...0a57 ↗</a>
       <span class="badge">MORPHO 0% FEE: \$162.1M</span>
       <span class="badge" id="alarmBadge" style="color: #10b981; border-color: rgba(16,185,129,0.4); font-weight: 600;">🔔 ALARMA SONORA: ACTIVA</span>
       <button class="btn-test" id="soundTestBtn" onclick="testSoundAlert()">🔊 Probar Alarma Sonora</button>
     </div>
+  </div>
+
+  <!-- AT-RISK BORROWER HERO BANNER -->
+  <div style="background: linear-gradient(90deg, rgba(239,68,68,0.15) 0%, rgba(0,82,255,0.15) 100%); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px; padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 1.5rem;">🚨</span>
+      <div>
+        <div style="font-weight: 700; color: #f87171; font-size: 0.95rem;">AT-RISK DEBTOR ON BASE L2? AVOID 5% MEV LIQUIDATION PENALTY</div>
+        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">Protect collateral instantly with 0.00% Morpho flash loans &amp; flat 0.25% fee. Connect your wallet to rescue in 1 click.</div>
+      </div>
+    </div>
+    <a href="/rescue" class="btn-test" style="text-decoration:none; background: #ef4444; color: #fff; font-weight: 700; font-size: 0.85rem; padding: 10px 18px; border-radius: 8px;">LAUNCH 1-CLICK RESCUE ➔</a>
   </div>
 
   <!-- 4 TARJETAS KPI (ESTRICTAMENTE REALES ON-CHAIN) -->
