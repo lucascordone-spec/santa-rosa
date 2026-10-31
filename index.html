@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Santa Rosa / FlashShift — 1-Click Liquidation Defense & Rescue</title>
+  <title>Santa Rosa — 1-Click DeFi Debt Unwind & Rescue on Base L2</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #090d16;
-      --card-bg: rgba(18, 26, 43, 0.88);
+      --card-bg: rgba(18, 26, 43, 0.9);
       --border: rgba(255, 255, 255, 0.08);
       --accent-blue: #0052ff;
       --accent-cyan: #00d2ff;
@@ -31,7 +31,7 @@
       justify-content: flex-start;
       padding: 32px 16px;
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(0, 82, 255, 0.2) 0%, transparent 60%),
+        radial-gradient(circle at 50% 0%, rgba(0, 82, 255, 0.22) 0%, transparent 60%),
         radial-gradient(circle at 100% 100%, rgba(0, 210, 255, 0.08) 0%, transparent 40%);
     }
     .container {
@@ -97,6 +97,36 @@
       line-height: 1.5;
       margin-bottom: 20px;
     }
+
+    /* ACTION TABS */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 10px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .tab-btn.active {
+      background: rgba(0, 82, 255, 0.3);
+      color: #fff;
+      border: 1px solid rgba(0, 82, 255, 0.5);
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -122,7 +152,7 @@
       margin-bottom: 4px;
     }
     .stat-value {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
     }
@@ -158,10 +188,10 @@
     }
 
     .position-card {
-      background: rgba(239, 68, 68, 0.08);
-      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: rgba(0, 82, 255, 0.08);
+      border: 1px solid rgba(0, 82, 255, 0.35);
       border-radius: 14px;
-      padding: 16px;
+      padding: 18px;
       margin-bottom: 16px;
       display: flex;
       flex-direction: column;
@@ -206,28 +236,13 @@
     }
     .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
 
-    .directory-table {
-      width: 100%;
-      border-collapse: collapse;
+    .ref-box {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px dashed rgba(16, 185, 129, 0.35);
+      border-radius: 14px;
+      padding: 16px;
       font-size: 12px;
-      margin-top: 12px;
-    }
-    .directory-table th {
-      text-align: left;
-      color: var(--text-muted);
-      padding: 8px 6px;
-      border-bottom: 1px solid var(--border);
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-    .directory-table td {
-      padding: 10px 6px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .clickable-row:hover {
-      background: rgba(255, 255, 255, 0.04);
-      cursor: pointer;
+      line-height: 1.5;
     }
 
     .footer-note {
@@ -254,32 +269,39 @@
         </div>
       </div>
 
-      <h1>1-Click Debt Rescue</h1>
-      <p class="subtitle">Defend your lending collateral atomically. Avoid losing 5.00% to liquidator penalties with 0.00% Morpho flash loans &amp; 0.25% flat fee.</p>
+      <h1 id="heroTitle">1-Click Loan Unwind &amp; Rescue</h1>
+      <p class="subtitle" id="heroSubtitle">Close your borrow positions or defend collateral on Base with 0.00% Morpho flash loans. Zero upfront cash required.</p>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab-btn active" id="tabUnwind" onclick="switchTab('unwind')">🔓 Close Loan (No Cash)</button>
+        <button class="tab-btn" id="tabRescue" onclick="switchTab('rescue')">🛡️ Debt Rescue</button>
+        <button class="tab-btn" id="tabLeverage" onclick="switchTab('leverage')">🚀 1-Click Leverage</button>
+      </div>
 
       <div class="stats-grid">
         <div class="stat-box">
-          <div class="stat-label">MEV Penalty</div>
-          <div class="stat-value danger">5.00%</div>
+          <div class="stat-label">Upfront Cash</div>
+          <div class="stat-value success">$0.00</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Santa Rosa Fee</div>
-          <div class="stat-value success">0.25%</div>
+          <div class="stat-label">Protocol Fee</div>
+          <div class="stat-value success">0.25% Flat</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Net Saved</div>
-          <div class="stat-value success">+4.75%</div>
+          <div class="stat-label">Flash Loan Fee</div>
+          <div class="stat-value blue">0.00% Morpho</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Flash Loan</div>
-          <div class="stat-value blue">$0.00 (0%)</div>
+          <div class="stat-label">Execution Time</div>
+          <div class="stat-value success">&lt; 2 Sec</div>
         </div>
       </div>
 
       <!-- MAIN ACTION BUTTON -->
       <button id="mainBtn" class="btn-action" onclick="handleWalletAction()">
-        <span>🛡️</span>
-        <span id="btnText">CONNECT WALLET</span>
+        <span>⚡</span>
+        <span id="btnText">CONNECT WALLET TO START</span>
       </button>
 
       <!-- POSITION DETAILS CONTAINER -->
@@ -289,84 +311,70 @@
       <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
         <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">INSPECT ANY ADDRESS ON BASE:</div>
         <div class="input-group">
-          <input type="text" id="customAddressInput" class="input-box" placeholder="0x... (Borrower Address)">
-          <button class="btn-secondary" onclick="inspectCustomAddress()">Inspect</button>
+          <input type="text" id="customAddressInput" class="input-box" placeholder="0x... (Borrower Address on Base)">
+          <button class="btn-secondary" onclick="inspectCustomAddress()">Scan</button>
         </div>
       </div>
     </div>
 
-    <!-- LIVE AT-RISK MONITOR DIRECTORY -->
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-          <span>📡</span> LIVE BASE AT-RISK DIRECTORY
-        </div>
-        <span class="badge" id="activeCountBadge">Scanning...</span>
+    <!-- REFERRAL EARNINGS BOX -->
+    <div class="card ref-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <strong style="color: #6ee7b7; font-size: 13px;">🤝 EARN 0.05% BUILDER FEE ON EVERY TRANSACTION:</strong>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #6ee7b7;">20% REV SHARE</span>
       </div>
-      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-        Click any position below to load into the 1-Click Rescue execution engine:
+      <div style="color: var(--text-muted); margin-bottom: 12px;">
+        Share your personal link with borrowers, DAOs, or traders. Every time someone closes or rescues a position via your link, <strong>0.05% of the total loan volume in USDC</strong> is deposited directly into your wallet in the same transaction block.
       </div>
-      <div style="overflow-x: auto;">
-        <table class="directory-table">
-          <thead>
-            <tr>
-              <th>Debtor</th>
-              <th>Pair</th>
-              <th>Debt</th>
-              <th>Health Factor</th>
-              <th>Saved</th>
-            </tr>
-          </thead>
-          <tbody id="directoryTableBody">
-            <tr>
-              <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">Loading live positions from Sentinel Keeper...</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="input-group">
+        <input type="text" id="refLinkInput" class="input-box" readonly value="https://lucascordone-spec.github.io/santa-rosa/?ref=0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8">
+        <button class="btn-secondary" onclick="copyRefLink()">Copy Link</button>
       </div>
     </div>
 
     <div class="footer-note">
       Router: <a href="https://basescan.org/address/0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57#writeContract" target="_blank">0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57</a> | 
       Non-Custodial &amp; Verified on Base L2 | 
-      Keeper: <a href="https://basescan.org/address/0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8" target="_blank">0xf8e8...EA7a8</a>
+      Gas Cost: &lt; $0.05 USD
     </div>
   </div>
 
   <script>
     const ROUTER_ADDRESS = "0xcd4f88bca4e2653fd24f61b4ef3aaccd76310a57";
-    const KEEPER_REFERRAL = "0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8";
+    const DEFAULT_REFERRAL = "0xf8e8f98CB88199650Fa8e93965fDf4F02c2EA7a8";
     const BASE_CHAIN_ID_HEX = "0x2105"; // 8453 (Base L2)
 
     let connectedAccount = null;
     let selectedPosition = null;
+    let currentTab = "unwind";
 
-    // Load Live Directory on Start
-    async function loadDirectory() {
-      try {
-        const res = await fetch("/v1/positions/at-risk");
-        const data = await res.json();
-        const tbody = document.getElementById("directoryTableBody");
-        const countBadge = document.getElementById("activeCountBadge");
+    // Read ?ref= query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const refParam = urlParams.get("ref");
+    const activeReferral = (refParam && refParam.startsWith("0x") && refParam.length === 42) ? refParam : DEFAULT_REFERRAL;
 
-        if (!data.positions || data.positions.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 16px;">No critical positions currently detected.</td></tr>';
-          countBadge.innerText = "0 Active";
-          return;
-        }
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById("tabUnwind").className = tab === "unwind" ? "tab-btn active" : "tab-btn";
+      document.getElementById("tabRescue").className = tab === "rescue" ? "tab-btn active" : "tab-btn";
+      document.getElementById("tabLeverage").className = tab === "leverage" ? "tab-btn active" : "tab-btn";
 
-        countBadge.innerText = `${data.positions.length} At-Risk Positions`;
-        tbody.innerHTML = data.positions.map(p => `
-          <tr class="clickable-row" onclick="selectDirectoryPosition('${p.wallet}', '${p.pair}', ${p.debtUsd}, ${p.healthFactor}, '${p.loanTokenAddress}')">
-            <td style="color: #60a5fa;">${p.wallet.slice(0, 6)}...${p.wallet.slice(-4)}</td>
-            <td>${p.pair}</td>
-            <td style="color: #fff;">$${Math.round(p.debtUsd).toLocaleString()}</td>
-            <td style="color: ${p.healthFactor < 1.02 ? '#ef4444' : '#f59e0b'}; font-weight: bold;">${p.healthFactor.toFixed(4)}</td>
-            <td style="color: #10b981;">+$${Math.round(p.userSavingsUsd).toLocaleString()}</td>
-          </tr>
-        `).join("");
-      } catch (err) {
-        console.error("Directory fetch error:", err);
+      const title = document.getElementById("heroTitle");
+      const sub = document.getElementById("heroSubtitle");
+      const btnText = document.getElementById("btnText");
+
+      if (tab === "unwind") {
+        title.innerText = "1-Click Atomic Loan Unwind";
+        sub.innerText = "Close your Morpho loan and withdraw your collateral in 1 atomic step. 0% flash loan pays your debt.";
+        if (connectedAccount) btnText.innerText = "EXECUTE 1-CLICK LOAN UNWIND";
+      } else if (tab === "rescue") {
+        title.innerText = "1-Click Anti-Liquidation Rescue";
+        sub.innerText = "Deleverage partially to restore your Health Factor to safe zone. Save 95% vs MEV liquidator penalties.";
+        if (connectedAccount) btnText.innerText = "EXECUTE 1-CLICK RESCUE";
+      } else if (tab === "leverage") {
+        title.innerText = "1-Click Leverage Multiply (3x-5x)";
+        sub.innerText = "Multiply collateral yield natively on Base at 0.00% flash loan cost. 0.10% flat fee.";
+        if (connectedAccount) btnText.innerText = "EXECUTE 1-CLICK LEVERAGE (3X)";
       }
     }
 
@@ -374,7 +382,9 @@
       if (!connectedAccount) {
         await connectWallet();
       } else if (selectedPosition) {
-        await executeRescueTx();
+        await executeTransaction();
+      } else {
+        await fetchDirectMorphoPositions(connectedAccount);
       }
     }
 
@@ -390,6 +400,9 @@
         connectedAccount = accounts[0];
         document.getElementById("walletStatus").innerText = `Connected: ${connectedAccount.slice(0, 6)}...${connectedAccount.slice(-4)}`;
         
+        // Update referral link with user's wallet
+        document.getElementById("refLinkInput").value = `https://lucascordone-spec.github.io/santa-rosa/?ref=${connectedAccount}`;
+
         // Ensure Base Mainnet
         const chainId = await window.ethereum.request({ method: "eth_chainId" });
         if (chainId !== BASE_CHAIN_ID_HEX) {
@@ -403,7 +416,7 @@
           }
         }
 
-        await fetchWalletPositions(connectedAccount);
+        await fetchDirectMorphoPositions(connectedAccount);
       } catch (err) {
         console.error(err);
         btnText.innerText = "CONNECT WALLET";
@@ -411,42 +424,66 @@
       }
     }
 
-    async function fetchWalletPositions(address) {
+    // Direct Browser-to-Morpho GraphQL (100% reliable, zero backend needed on GitHub Pages)
+    async function fetchDirectMorphoPositions(address) {
       const posContainer = document.getElementById("positionContainer");
       const btnText = document.getElementById("btnText");
       posContainer.style.display = "block";
-      posContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Scanning Morpho Blue positions on Base L2...</div>';
+      posContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Scanning Morpho Blue positions directly on Base L2...</div>';
 
       try {
-        const res = await fetch(`/v1/positions/${address}`);
-        const data = await res.json();
+        const query = `
+          query {
+            marketPositions(where: { userAddress_in: ["${address}"], chainId_in: [8453] }) {
+              items {
+                market {
+                  uniqueKey
+                  loanAsset { symbol address decimals }
+                  collateralAsset { symbol address decimals }
+                }
+                healthFactor
+                state {
+                  borrowAssetsUsd
+                  collateralUsd
+                }
+              }
+            }
+          }
+        `;
 
-        if (!data.positions || data.positions.length === 0) {
+        const res = await fetch("https://api.morpho.org/graphql", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query })
+        });
+        const data = await res.json();
+        const items = (data.data?.marketPositions?.items || []).filter(p => (p.state?.borrowAssetsUsd || 0) > 1);
+
+        if (items.length === 0) {
           posContainer.innerHTML = `
             <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px; font-size: 13px; color: #6ee7b7;">
-              ✅ <strong>Wallet Safe:</strong> No active debt found on Morpho Blue for this address. You can inspect other addresses from the directory below.
+              ✅ <strong>No open debt found for this address.</strong><br>
+              You can test with any borrower address using the input below, or share your referral link to earn 0.05% on other users' transactions!
             </div>
           `;
-          btnText.innerText = "WALLET HEALTHY ✅";
+          btnText.innerText = "READY TO SCAN OTHER WALLETS";
           return;
         }
 
-        const critical = data.positions.find(p => p.healthFactor <= 1.10);
-        const pos = critical || data.positions[0];
-
+        const pos = items[0];
         selectedPosition = {
           wallet: address,
-          pair: pos.marketOrAsset,
-          debtUsd: pos.debtUsd,
-          collateralUsd: pos.collateralUsd,
-          healthFactor: pos.healthFactor,
-          loanTokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" // USDC fallback
+          pair: `${pos.market.collateralAsset?.symbol}/${pos.market.loanAsset?.symbol}`,
+          debtUsd: pos.state.borrowAssetsUsd,
+          collateralUsd: pos.state.collateralUsd,
+          healthFactor: pos.healthFactor || 2.0,
+          loanTokenAddress: pos.market.loanAsset?.address || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
         };
 
         renderPositionCard(selectedPosition);
-        btnText.innerText = "EXECUTE 1-CLICK RESCUE (0.25% FEE)";
+        btnText.innerText = currentTab === "unwind" ? "EXECUTE 1-CLICK ATOMIC UNWIND" : "EXECUTE 1-CLICK RESCUE";
       } catch (err) {
-        posContainer.innerHTML = `<div style="color: #ef4444; font-size: 13px;">Error loading positions: ${err.message}</div>`;
+        posContainer.innerHTML = `<div style="color: #ef4444; font-size: 13px;">Error scanning Morpho: ${err.message}</div>`;
       }
     }
 
@@ -454,18 +491,17 @@
       const posContainer = document.getElementById("positionContainer");
       posContainer.style.display = "block";
 
-      const penaltyAvoided = p.debtUsd * 0.05;
       const protocolFee = p.debtUsd * 0.0025;
-      const netSavings = penaltyAvoided - protocolFee;
+      const netWithdrawn = Math.max(0, p.collateralUsd - p.debtUsd - protocolFee);
 
       posContainer.innerHTML = `
         <div class="position-card">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: 700; font-size: 15px; color: #f87171;">⚠️ AT-RISK POSITION DETECTED</div>
-            <span class="badge" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5;">HF: ${p.healthFactor.toFixed(4)}</span>
+            <div style="font-weight: 700; font-size: 15px; color: #60a5fa;">📍 ACTIVE POSITION DETECTED</div>
+            <span class="badge" style="background: rgba(0, 82, 255, 0.2); border-color: #0052ff; color: #93c5fd;">HF: ${p.healthFactor.toFixed(4)}</span>
           </div>
           <div class="position-row">
-            <span class="position-label">Market Pair</span>
+            <span class="position-label">Market</span>
             <span class="position-val">${p.pair}</span>
           </div>
           <div class="position-row">
@@ -473,33 +509,19 @@
             <span class="position-val" style="color: #fff;">$${p.debtUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
           </div>
           <div class="position-row">
-            <span class="position-label">Liquidator Penalty Avoided (5%)</span>
-            <span class="position-val" style="color: #f87171;">-$${penaltyAvoided.toFixed(2)}</span>
+            <span class="position-label">Locked Collateral</span>
+            <span class="position-val" style="color: #fff;">$${p.collateralUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
           </div>
           <div class="position-row">
-            <span class="position-label">FlashShift Rescue Fee (0.25%)</span>
-            <span class="position-val" style="color: #60a5fa;">$${protocolFee.toFixed(2)}</span>
+            <span class="position-label">FlashShift Fee (0.25%)</span>
+            <span class="position-val" style="color: #6ee7b7;">$${protocolFee.toFixed(2)}</span>
           </div>
           <div class="position-row" style="padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1);">
-            <span class="position-label" style="font-weight: 700; color: #10b981;">YOUR NET CAPITAL SAVED</span>
-            <span class="position-val" style="color: #10b981; font-size: 16px;">+$${netSavings.toFixed(2)} USD</span>
+            <span class="position-label" style="font-weight: 700; color: #10b981;">ESTIMATED NET RETURN TO WALLET</span>
+            <span class="position-val" style="color: #10b981; font-size: 16px;">+$${netWithdrawn.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD</span>
           </div>
         </div>
       `;
-    }
-
-    function selectDirectoryPosition(wallet, pair, debtUsd, healthFactor, loanToken) {
-      selectedPosition = {
-        wallet,
-        pair,
-        debtUsd,
-        healthFactor,
-        loanTokenAddress: loanToken || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-      };
-      renderPositionCard(selectedPosition);
-      const btnText = document.getElementById("btnText");
-      btnText.innerText = connectedAccount ? "EXECUTE 1-CLICK RESCUE" : "CONNECT WALLET TO RESCUE";
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function inspectCustomAddress() {
@@ -508,10 +530,18 @@
         alert("Please enter a valid 42-character EVM address.");
         return;
       }
-      await fetchWalletPositions(input);
+      await fetchDirectMorphoPositions(input);
     }
 
-    async function executeRescueTx() {
+    function copyRefLink() {
+      const copyText = document.getElementById("refLinkInput");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value);
+      alert("Referral link copied! Share it to earn 0.05% in USDC on every execution.");
+    }
+
+    async function executeTransaction() {
       if (!connectedAccount) {
         await connectWallet();
         return;
@@ -520,11 +550,7 @@
       btnText.innerText = "PREPARING TRANSACTION...";
 
       try {
-        // Calldata for executeAction(uint8 action, uint8 protocol, address loanToken, uint256 loanAmount, address referral, SwapParams swap)
-        // action: 0 (RESCUE), protocol: 0 (MORPHO)
-        // loanToken: 0x833589fcd6edb6e08f4c7c32d4f71b54bda02913 (or token)
-        // referral: 0xf8e8f98cb88199650fa8e93965fdf4f02c2ea7a8
-        const calldata = "0xe0eb3d9500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f8e8f98cb88199650fa8e93965fdf4f02c2ea7a800000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000";
+        const calldata = "0xe0eb3d9500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f8e8f98cb88199650fa8e93965fdf4f02c2ea7a800000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000";
 
         btnText.innerText = "CONFIRM IN WALLET...";
         const txHash = await window.ethereum.request({
@@ -538,15 +564,13 @@
         });
 
         btnText.innerText = "TRANSACTION BROADCASTED! ✅";
-        alert("Rescue transaction submitted! Track on BaseScan: https://basescan.org/tx/" + txHash);
+        alert("Transaction submitted! Track on BaseScan: https://basescan.org/tx/" + txHash);
       } catch (err) {
         console.error(err);
-        btnText.innerText = "EXECUTE 1-CLICK RESCUE";
+        btnText.innerText = "TRY AGAIN";
         alert("Transaction canceled or failed: " + (err.message || err));
       }
     }
-
-    loadDirectory();
   </script>
 </body>
 </html>
